@@ -38,7 +38,7 @@ export function buildPrompt(value,runId,files=[]) {
 用户所选浏览器：${s.browserEngine}。
 严格遵守选择：auto 才允许内置失败后自动切换；builtin 只尝试 Harness 已提供的内置操作接口，无读取/点击工具时停止并建议改选，不能冒充采集成功；agent-browser 使用可见 Chrome for Testing；chrome 使用 agent-browser 配合本机 Chrome 可执行文件及专用研究 profile，不读取或复制日常个人 profile；default 使用系统标准方式在当前默认浏览器打开目标页面，先检查现有可见 GUI 或浏览器工具能否读取、点击和翻页，只有能力验证通过才继续；不能自动操作时停下让用户改选，不擅自修改系统默认浏览器或读取其他标签。agent-chrome 先检查本机 agent-chrome --help 和连接方式，只操作本次目标标签，不自动连接其他标签，不安装来源不明的同名项目，缺少时请用户提供确切来源或改选。
 自定义 skill 的每个来源都只在用户指定范围内核对。installed 验证已安装项，local 只读取指定 skill 目录，github 先验证明确的来源和相对引用文件。正常申请需要的安装与目录权限，不覆盖现有同名项。
-${s.browserEngine==='auto'?'浏览器优先级：先尝试插件已经打开的 Harness 内置浏览器。检查现有工具能否读取正文、点击和翻页；如果没有操作内嵌网页的工具或受跨域、登录、iframe 限制，只说明一次原因，自动改用 agent-browser 的可见 Chrome for Testing。':'按用户明确选择的浏览器执行，不自动切换到其他引擎。'}不要反复猜 API、改安全设置或绕过网页限制。所有方式都禁止无头浏览器，包括 PDF 导出。agent-browser 会话名 web-research-${runId}，profile 放在当前工作区 web-research-browser/${host}/${runId}，不影响其他会话。
+${s.browserEngine==='auto'?'浏览器优先级：先检查 Harness 提供的内置浏览器操作工具。检查现有工具能否读取正文、点击和翻页；如果没有操作内嵌网页的工具或受跨域、登录、iframe 限制，只说明一次原因，自动改用 agent-browser 的可见 Chrome for Testing。':'按用户明确选择的浏览器执行，不自动切换到其他引擎。'}不要反复猜 API、改安全设置或绕过网页限制。所有方式都禁止无头浏览器，包括 PDF 导出。agent-browser 会话名 web-research-${runId}，profile 放在当前工作区 web-research-browser/${host}/${runId}，不影响其他会话。
 需要登录时在当前对话引导用户操作，等待完成并复核再继续。不要读取、输出密码、Cookie、token。
 先采集，再分别总结正文和评论，再用所选 GTM 技能分析。保留时间、原文链接、范围、失败项、原始 JSON 和截图。明确区分原文观点与推测；缺少客户、销售或财务数据时，不编造。
 本次分析所需材料：${s.definition.requires||'网页正文和可读取的评论'}。如所选审核需要销售通话或 CRM 而当前只有论坛，请先说明材料不足，提示上传或提供有权限的页面，不编造买方证据。

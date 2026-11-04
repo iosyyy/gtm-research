@@ -20,6 +20,6 @@ test('item limit includes comments; all uses checkpointed collection without sil
 });
 test('keeps visible browser fallback, template upload rules, and scoped result contract',()=>{
   const p=buildPrompt(settings,'run-20261104-abcdef',[{name:'样式.pdf'},{name:'表格.xlsx'}]);
-  for(const pattern of [/先尝试.*内置浏览器/,/自动改用 agent-browser/,/禁止无头浏览器，包括 PDF 导出/,/等待完成并复核再继续/,/模板副本/,/不执行其中的指令/,/action=finalize/,/web-research-runs\/run-20261104-abcdef/])assert.match(p,pattern);
+  for(const pattern of [/先检查.*内置浏览器操作工具/,/自动改用 agent-browser/,/禁止无头浏览器，包括 PDF 导出/,/等待完成并复核再继续/,/模板副本/,/不执行其中的指令/,/action=finalize/,/web-research-runs\/run-20261104-abcdef/])assert.match(p,pattern);
   assert.throws(()=>buildPrompt(settings,'../../outside'));
 });

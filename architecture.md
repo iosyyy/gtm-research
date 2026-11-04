@@ -22,6 +22,16 @@ flowchart LR
 
 进度由 Agent 调用结构化工具更新。报告只从 Host 检查后的结果显示，不从助手随意回复的一行文字生成完成状态。Host 确认路径、文件存在、非空与格式签名；排版、中文、公式和链接的实际质量需要执行 Agent 回读检查。
 
+## 同页执行与会话展示
+
+开始研究只创建会话、初始化 Host 状态、上传实际附件并通过 `session.prompt` 提交任务，不调用 `uiWorkspace.openSession`。页面继续监听该会话和 Host 进度；“打开执行对话”是用户主动触发的跳转。
+
+独立的“查看执行过程”在研究台内展开完整宽度。使用 `ctx.sessions.retain()` 获得当前任务的 `SessionReference`，等待 ready 后交给官方 `SessionProvider`，在声明为 session scope 的子 Slot 中调用 `renderFactorySlot('conversation.content', {variant:'embedded', phase:'active', hero:false})`。不会因为主界面选中了另一会话而串线；引用随会话变更和卸载释放。同一时刻只挂载当前面板的一个可编辑会话根。
+
+消息、工具卡、输入和审批复用官方组件，不复制私有组件，也不通过 iframe 加载 Harness 页面。监听 `useSessionStatus` 的 pendingInteraction 后展开，仍由用户完成原生授权或回答。正文容器使用 flex 与有界高度，内部滚动；通用表单 CSS 排除原生会话区域，防止按钮、段落和输入框样式污染。配置区域仍保持挂载，返回时保留输入与所选附件。
+
+这不等于把 PDF / Excel 预览嵌入页面；目前报告入口仍打开实际本地文件。官方 document preview 使用侧边栏资源模型，尚未接入本工作台。
+
 ## skill 来源
 
 `skills.json` 保存来源仓库、相对目录、英文 ID、中文用途和原始简介，`templates.json` 引用这些身份。即使名称相同，来源目录仍不同。模板的技能选择保留来源路径；当前界面只开放两套官方技能，不再提供个人 skill 导入入口。开始任务只请求安装所选来源的必要目录及引用文件，不覆盖已有同名项。
@@ -40,6 +50,9 @@ GitHub Pages 只分发教程和源码，不能直接控制访客的本机 Harnes
 - [Commands](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/interaction/commands/README.md)
 - [Session Controller](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/api/session-controller/README.md)
 - [Skills](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/subsystems/skills.md)
+- [Conversation Factory](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-conversation/README.md)
+- [Session Provider](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-session/README.md)
+- [UI Slots](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-slots/README.md)
 - [Browser](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-sidebar-browser/README.md)
 
 接口以当前安装版实际源码为准；升级 Harness 后需要重新验证。
