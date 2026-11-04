@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+.env*
+.web-research/
+web-research-runs/
+web-research-browser/
+browser-profile*/
+*.log
+quantity-merged.png
+guide/
+.openai/

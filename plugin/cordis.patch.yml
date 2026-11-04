@@ -1,0 +1,4 @@
+- insert:
+    - id: web-research
+      name: '@iosyyy/dsh-web-research'
+      config: {}

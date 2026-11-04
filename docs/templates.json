@@ -1,0 +1,272 @@
+[
+  {
+    "id": "market-signals",
+    "name": "市场信号研究",
+    "description": "从网站讨论中归纳需求、变化和机会，并给出来源、置信度和下一步。",
+    "skills": [
+      "market-signal-tracker",
+      "community-insight-taxonomy"
+    ],
+    "example": "分析开发者论坛最近讨论，找出重复出现的问题。",
+    "source": "plugins/competitive-intelligence/skills/market-signal-tracker",
+    "repository": "gtmagents/gtm-agents",
+    "skillRefs": [
+      {
+        "name": "market-signal-tracker",
+        "path": "plugins/competitive-intelligence/skills/market-signal-tracker"
+      },
+      {
+        "name": "community-insight-taxonomy",
+        "path": "plugins/community-building/skills/community-insight-taxonomy"
+      }
+    ]
+  },
+  {
+    "id": "competitor-intel",
+    "name": "竞品情报与对比",
+    "description": "研究竞品的定位、功能、用户反馈和异议，形成有证据的竞品对比。",
+    "skills": [
+      "competitive-intel",
+      "battlecard-library"
+    ],
+    "example": "对比几款工具的公开介绍和用户反馈。",
+    "source": "plugins/product-marketing/skills/competitive-intel",
+    "repository": "gtmagents/gtm-agents",
+    "skillRefs": [
+      {
+        "name": "competitive-intel",
+        "path": "plugins/product-marketing/skills/competitive-intel"
+      },
+      {
+        "name": "battlecard-library",
+        "path": "plugins/competitive-intelligence/skills/battlecard-library"
+      }
+    ]
+  },
+  {
+    "id": "community-insights",
+    "name": "社区与用户洞察",
+    "description": "按人群、旅程、诉求和情绪整理讨论，识别用户声音和待验证的机会。",
+    "skills": [
+      "community-insight-taxonomy",
+      "voice-of-customer"
+    ],
+    "example": "从论坛帖子和评论整理用户为什么喜欢或放弃某类产品。",
+    "source": "plugins/community-building/skills/community-insight-taxonomy",
+    "repository": "gtmagents/gtm-agents",
+    "skillRefs": [
+      {
+        "name": "community-insight-taxonomy",
+        "path": "plugins/community-building/skills/community-insight-taxonomy"
+      },
+      {
+        "name": "voice-of-customer",
+        "path": "plugins/customer-journey-orchestration/skills/voice-of-customer"
+      }
+    ]
+  },
+  {
+    "id": "lead-research",
+    "name": "潜客与需求线索",
+    "description": "基于公开来源整理潜在客户、需求线索和资格证据；缺少的信息标未知，不编造个人资料。",
+    "skills": [
+      "lead-qualification",
+      "social-selling"
+    ],
+    "example": "从公开讨论识别可能需要某种工具的组织和需求。",
+    "source": "docs/use-cases/lead-generation-workflow.md",
+    "repository": "gtmagents/gtm-agents",
+    "skillRefs": [
+      {
+        "name": "lead-qualification",
+        "path": "plugins/sales-prospecting/skills/lead-qualification"
+      },
+      {
+        "name": "social-selling",
+        "path": "plugins/sales-prospecting/skills/social-selling"
+      }
+    ]
+  },
+  {
+    "id": "content-calendar",
+    "name": "内容选题与日历",
+    "description": "基于研究生成内容主题、受众、切入点、渠道和发布日历，保持来源可追溯。",
+    "skills": [
+      "editorial-ops",
+      "thought-leadership"
+    ],
+    "example": "把开发者讨论整理为未来一个月的内容计划。",
+    "source": "docs/use-cases/content-calendar-30-days.md",
+    "repository": "gtmagents/gtm-agents",
+    "skillRefs": [
+      {
+        "name": "editorial-ops",
+        "path": "plugins/content-marketing/skills/editorial-ops"
+      },
+      {
+        "name": "thought-leadership",
+        "path": "plugins/content-marketing/skills/thought-leadership"
+      }
+    ]
+  },
+  {
+    "id": "social-calendar",
+    "name": "社媒趋势与计划",
+    "description": "研究热点和平台受众，形成适合各渠道的内容日历与互动建议。",
+    "skills": [
+      "trend-research",
+      "social-calendar-system"
+    ],
+    "example": "从社区热点生成不同渠道的选题和发布计划。",
+    "source": "docs/use-cases/social-media-calendar.md",
+    "repository": "gtmagents/gtm-agents",
+    "skillRefs": [
+      {
+        "name": "trend-research",
+        "path": "plugins/social-media/skills/trend-research"
+      },
+      {
+        "name": "social-calendar-system",
+        "path": "plugins/social-media-marketing/skills/social-calendar-system"
+      }
+    ]
+  },
+  {
+    "id": "zime-discovery",
+    "repository": "zime-ai/zime-gtm-skills",
+    "name": "需求与痛点审核",
+    "description": "审核销售发现通话，只有买方原话才计为证据；缺少通话时明确要求补充。",
+    "skills": [
+      "deep-discovery",
+      "pain-finder"
+    ],
+    "source": "skills/deep-discovery",
+    "example": "上传销售通话文字稿或打开有权限的通话记录页。",
+    "requires": "销售通话文字稿、客户记录或 CRM 数据；论坛讨论不足以完成正式审核。",
+    "skillRefs": [
+      {
+        "name": "deep-discovery",
+        "path": "skills/deep-discovery"
+      },
+      {
+        "name": "pain-finder",
+        "path": "skills/pain-finder"
+      }
+    ]
+  },
+  {
+    "id": "zime-qualification",
+    "repository": "zime-ai/zime-gtm-skills",
+    "name": "商机资格检查",
+    "description": "按 MEDDICC 或 BANT 检查商机的证据和缺口，缺少预算、决策信息时标未知。",
+    "skills": [
+      "meddicc",
+      "bant"
+    ],
+    "source": "skills/meddicc",
+    "example": "研究有权限的 CRM 商机页面或上传导出表。",
+    "requires": "销售通话文字稿、客户记录或 CRM 数据；论坛讨论不足以完成正式审核。",
+    "skillRefs": [
+      {
+        "name": "meddicc",
+        "path": "skills/meddicc"
+      },
+      {
+        "name": "bant",
+        "path": "skills/bant"
+      }
+    ]
+  },
+  {
+    "id": "zime-competitor",
+    "repository": "zime-ai/zime-gtm-skills",
+    "name": "客户竞品战卡",
+    "description": "仅按客户实际提到的竞品和选择标准生成战卡，缺少客户证据时不能替代为论坛推测。",
+    "skills": [
+      "competitor-battlecard",
+      "competitive-positioning"
+    ],
+    "source": "skills/competitor-battlecard",
+    "example": "上传销售通话记录，或打开包含买方原话的记录页。",
+    "requires": "销售通话文字稿、客户记录或 CRM 数据；论坛讨论不足以完成正式审核。",
+    "skillRefs": [
+      {
+        "name": "competitor-battlecard",
+        "path": "skills/competitor-battlecard"
+      },
+      {
+        "name": "competitive-positioning",
+        "path": "skills/competitive-positioning"
+      }
+    ]
+  },
+  {
+    "id": "zime-pipeline",
+    "repository": "zime-ai/zime-gtm-skills",
+    "name": "销售管道与风险",
+    "description": "从 CRM 导出或已授权页面整理商机阶段、数据缺口和风险，不推算未提供的收入。",
+    "skills": [
+      "pipeline-review",
+      "deal-risk-digest"
+    ],
+    "source": "skills/pipeline-review",
+    "example": "打开内部 CRM 页面，或上传商机导出。",
+    "requires": "销售通话文字稿、客户记录或 CRM 数据；论坛讨论不足以完成正式审核。",
+    "skillRefs": [
+      {
+        "name": "pipeline-review",
+        "path": "skills/pipeline-review"
+      },
+      {
+        "name": "deal-risk-digest",
+        "path": "skills/deal-risk-digest"
+      }
+    ]
+  },
+  {
+    "id": "zime-next-step",
+    "repository": "zime-ai/zime-gtm-skills",
+    "name": "下一步承诺审核",
+    "description": "核对下一步是否双方确认、有时间和负责人，区分承诺和销售自己的表述。",
+    "skills": [
+      "next-step-commitment",
+      "call-prep"
+    ],
+    "source": "skills/next-step-commitment",
+    "example": "分析一段销售通话记录或拜访纪要。",
+    "requires": "销售通话文字稿、客户记录或 CRM 数据；论坛讨论不足以完成正式审核。",
+    "skillRefs": [
+      {
+        "name": "next-step-commitment",
+        "path": "skills/next-step-commitment"
+      },
+      {
+        "name": "call-prep",
+        "path": "skills/call-prep"
+      }
+    ]
+  },
+  {
+    "id": "zime-renewal",
+    "repository": "zime-ai/zime-gtm-skills",
+    "name": "续约与流失信号",
+    "description": "从客户通话与 CRM 记录整理续约风险、客户价值和待确认的承诺，缺证据标缺失。",
+    "skills": [
+      "renewal-prep",
+      "churn-prevention"
+    ],
+    "source": "skills/renewal-prep",
+    "example": "上传客户回访记录或打开续约页面。",
+    "requires": "销售通话文字稿、客户记录或 CRM 数据；论坛讨论不足以完成正式审核。",
+    "skillRefs": [
+      {
+        "name": "renewal-prep",
+        "path": "skills/renewal-prep"
+      },
+      {
+        "name": "churn-prevention",
+        "path": "skills/churn-prevention"
+      }
+    ]
+  }
+]
