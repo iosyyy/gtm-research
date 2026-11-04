@@ -2,8 +2,8 @@
 
 可修改、可本地运行的 **DeepSeek Harness 插件**，附完整中文教程。插件与 GitHub Pages 网站在同一个仓库。
 
-- [在线教程](https://iosyyy.github.io/deepseek-web-research/)
-- [下载插件源码包](https://iosyyy.github.io/deepseek-web-research/downloads/dsh-web-research-plugin.zip)
+- [在线教程](https://iosyyy.github.io/gtm-research/)
+- [下载插件源码包](https://iosyyy.github.io/gtm-research/downloads/dsh-web-research-plugin.zip)
 - [实现与接口说明](architecture.md)
 - [验证记录与能力边界](VERIFICATION.md)
 - [用户已要求后续处理的功能](BACKLOG.md)
@@ -15,7 +15,7 @@
 
 ```text
 帮我安装网页研究台插件：
-https://github.com/iosyyy/deepseek-web-research
+https://github.com/iosyyy/gtm-research
 
 先读 README，下载仓库，再使用当前 Harness 支持的插件管理器安装 plugin 目录。
 不要手改个人 profile 配置。需要审批时正常申请。
@@ -29,7 +29,7 @@ https://github.com/iosyyy/deepseek-web-research
 熟悉命令行的用户可在已安装 `dsh` 的环境运行：
 
 ```sh
-dsh plugin --profile desktop add /absolute/path/deepseek-web-research/plugin
+dsh plugin --profile desktop add /absolute/path/gtm-research/plugin
 ```
 
 目录使用自己的实际路径。通过官方插件管理器添加本地目录同样可以。更新后若仍显示旧界面，关闭并重开 Harness。

@@ -26,4 +26,4 @@ node --test *.test.mjs
 
 修改后重新构建 `client.js` 并通过插件管理器更新。Host 代码更新需要重新加载或重启。
 
-上游许可证随源码包附带，中文用途是基于原始简介修改的翻译。完整说明和教程：https://github.com/iosyyy/deepseek-web-research
+上游许可证随源码包附带，中文用途是基于原始简介修改的翻译。完整说明和教程：https://github.com/iosyyy/gtm-research
