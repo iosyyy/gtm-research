@@ -8,7 +8,7 @@ test('start accepts the real Harness string session identity and workspaceId',as
   const declaration=source.match(/async function newRun\(kind\)\{[\s\S]*?(?=\n    async function send)/)?.[0];
   assert.ok(declaration);
   const calls=[];
-  const sandbox={Date,Math,workspaceId:'workspace-test',url:'https://example.com/',name:'Example',workspace:()=>({workspaceId:'workspace-test',path:'/tmp/research'}),read:()=>({runs:[]}),persist:()=>{},setRun:()=>{},setText:()=>{},ctx:{sessions:{create:async input=>{calls.push(input);return 'session-real-id';}}}};
+  const sandbox={Date,Math,browserEngine:'default',skillSource:'gtmagents/gtm-agents',workspaceId:'workspace-test',url:'https://example.com/',name:'Example',workspace:()=>({workspaceId:'workspace-test',path:'/tmp/research'}),read:()=>({runs:[]}),persist:()=>{},setRun:()=>{},setText:()=>{},ctx:{sessions:{create:async input=>{calls.push(input);return 'session-real-id';}}}};
   const run=await vm.runInNewContext(`(${declaration})('research')`,sandbox);
   assert.equal(run.sessionId,'session-real-id');
   assert.equal(calls[0].workspaceId,'workspace-test');

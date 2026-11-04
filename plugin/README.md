@@ -10,7 +10,7 @@ dsh plugin --profile desktop add /absolute/path/plugin
 
 安装或更新后若显示旧代码，重开 Harness。浏览器窗口全程可见，缺少依赖时由执行任务准备，权限与登录沿用 Harness 的正常交互。
 
-支持 GTM Agents / Zime 两套目录、中文用途、搜索、自定义 skill、记住设置、PDF / Excel 样式模板和研究材料。工作台创建真实会话，进度和报告由 Host 服务检查；不会用模拟数据代替执行。
+支持 GTM Agents / Zime 两套目录、中文用途、搜索筛选、记住设置、PDF / Excel 样式模板和研究材料。工作台创建真实会话，进度和报告由 Host 服务检查；不会用模拟数据代替执行。
 
 - 修改样式：`studio.css`
 - 修改组件：`client.template.js`
