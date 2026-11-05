@@ -1,6 +1,6 @@
 {
   "name": "@iosyyy/dsh-web-research",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "type": "module",
   "description": "可修改的 Harness 网页研究台：两套 GTM 技能、可见浏览器、真实任务状态与本地报告。",
@@ -24,7 +24,8 @@
     "README.md",
     "skills.json",
     "custom-skills.js",
-    "host-service.js"
+    "host-service.js",
+    "task-plan.js"
   ],
   "dsh": {
     "bundle": {

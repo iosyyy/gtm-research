@@ -32,6 +32,21 @@ flowchart LR
 
 这不等于把 PDF / Excel 预览嵌入页面；目前报告入口仍打开实际本地文件。官方 document preview 使用侧边栏资源模型，尚未接入本工作台。
 
+## AI 计划状态协议（1.5.0）
+
+Client 在 begin 后验证 schemaVersion，旧 Host 不支持时停止提交模型任务并提示重开。包版本号只是文件元数据，不能证明运行中的模块已替换；新代码更新后需要按宿主生命周期重开。
+
+新任务状态使用 schemaVersion 2。begin 只写 phase=planning、plan=null 与“正在制定计划”，不创建任何默认步骤。AI 在执行前根据输入调用 set_plan，页面只显示 Host 保存的 plan.steps。
+
+| 操作 | 数据与约束 |
+| --- | --- |
+| set_plan | plan.summary 和 1–40 个自定步骤，每步唯一 id、中文 title、可选 detail。首次均 pending。修订必须提供原因，按稳定编号保留进度，已完成的步骤不能删除或改写含义。 |
+| progress | stepId 与 stepStatus 更新单独步骤；状态为 pending、in_progress、completed、blocked、failed、skipped。等待、失败或跳过要说明原因，同一时刻一个步骤进行中。可附实际依赖检查结果。 |
+| status | 返回持久化的计划、版本和实际状态；页面不按当前步骤位置补算前面步骤。 |
+| finalize | 新任务计划必须存在。除唯一进行中的最后一步外，其他步骤须 completed / skipped；实际文件检查通过后，才原子完成最后一步和任务。仅写 progress 不能完成任务。 |
+
+`task-plan.js` 处理计划校验和独立步骤更新，`host-service.js` 负责持久化与文件边界。页面、命令和 Agent 工具共用这份状态。任务的技能安装、可见浏览器、附件和导出约束仍生效，具体工作顺序由 AI 制定。旧版状态仍可读取和继续更新，页面不为其制造一份 AI 计划。
+
 ## skill 来源
 
 `skills.json` 保存来源仓库、相对目录、英文 ID、中文用途和原始简介，`templates.json` 引用这些身份。即使名称相同，来源目录仍不同。模板的技能选择保留来源路径；当前界面只开放两套官方技能，不再提供个人 skill 导入入口。开始任务只请求安装所选来源的必要目录及引用文件，不覆盖已有同名项。
@@ -52,6 +67,7 @@ GitHub Pages 只分发教程和源码，不能直接控制访客的本机 Harnes
 - [Skills](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/subsystems/skills.md)
 - [Conversation Factory](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-conversation/README.md)
 - [Session Provider](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-session/README.md)
+- [Plugin Manager 加载生命周期](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/boot/plugin-manager/README.md)
 - [UI Slots](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-slots/README.md)
 - [Browser](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-sidebar-browser/README.md)
 

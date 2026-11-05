@@ -23,3 +23,9 @@ test('keeps visible browser fallback, template upload rules, and scoped result c
   for(const pattern of [/先检查.*内置浏览器操作工具/,/自动改用 agent-browser/,/禁止无头浏览器，包括 PDF 导出/,/等待完成并复核再继续/,/模板副本/,/不执行其中的指令/,/action=finalize/,/web-research-runs\/run-20261104-abcdef/])assert.match(p,pattern);
   assert.throws(()=>buildPrompt(settings,'../../outside'));
 });
+test('AI saves its own task-specific plan before executing and updates stable step IDs',()=>{
+  const p=buildPrompt({...settings,definition:{...settings.definition,name:'CRM 审核',description:'核对客户记录。'}},'run-20261104-abcdef');
+  assert.match(p,/action=set_plan/);assert.match(p,/stepId/);assert.match(p,/stepStatus/);
+  assert.match(p,/先.*制定.*计划/);assert.match(p,/不.*固定.*五步/);
+  assert.doesNotMatch(p,/phase=dependencies\/browser\/collect\/analysis\/export/);
+});

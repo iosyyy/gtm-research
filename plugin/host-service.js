@@ -1,10 +1,11 @@
 import {readFile,writeFile,mkdir,rename,stat,realpath} from 'node:fs/promises';
 import {resolve,join,sep} from 'node:path';
 import {randomUUID} from 'node:crypto';
+import {reviseTaskPlan,updateTaskStep,planRunStatus} from './task-plan.js';
 
 const RUN=/^run-[a-zA-Z0-9-]{8,64}$/;
 const PHASES=['dependencies','browser','collect','analysis','export'];
-const STATES=['running','waiting','failed','complete'];
+const STATES=['running','waiting','failed'];
 const SOURCES=['gtmagents/gtm-agents','zime-ai/zime-gtm-skills','custom'];
 
 async function readJson(path,fallback,root){try{if(root)await contained(root,path);const info=await stat(path);if(info.size>2_000_000)throw new Error('配置文件过大。');return JSON.parse(await readFile(path,'utf8'));}catch(e){if(e.code==='ENOENT')return fallback;throw e;}}
@@ -68,20 +69,38 @@ export function createResearchService(){
     const current=await readJson(path,{runId:args.runId},output);
     if(args.action==='status')return current;
     if(args.action==='begin'){
-      const next={runId:args.runId,phase:'dependencies',status:'running',message:'任务已创建，正在检查所需依赖。',createdAt:current.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString(),dependencies:{gtm:'unknown',browser:'unknown',chrome:'unknown'}};
+      if(current.createdAt)return current;
+      const next={schemaVersion:2,runId:args.runId,phase:'planning',plan:null,status:'running',message:'正在根据网页、材料和研究目标制定计划。',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),dependencies:{gtm:'unknown',browser:'unknown',chrome:'unknown'}};
+      await writeJson(path,next);return next;
+    }
+    if(args.action==='set_plan'){
+      if(current.result)throw new Error('这次研究已完成，请新建任务。');
+      const plan=reviseTaskPlan(current.plan,args.plan,args.message);
+      const next={...current,schemaVersion:2,phase:'executing',plan,status:planRunStatus(plan),message:args.message?String(args.message).slice(0,2000):'AI 已制定本次计划，将按实际执行更新。',updatedAt:new Date().toISOString()};
       await writeJson(path,next);return next;
     }
     if(args.action==='progress'){
-      if(!PHASES.includes(args.phase)||!STATES.includes(args.status))throw new Error('阶段或状态无效。');
+      if(current.result)throw new Error('这次研究已完成，请新建任务。');
+      if(args.status!==undefined&&!STATES.includes(args.status))throw new Error('任务状态无效；完成必须通过 finalize 检查。');
+      if(current.schemaVersion===2&&args.phase!==undefined)throw new Error('请按 AI 计划的 stepId 和 stepStatus 更新，不使用固定阶段。');
+      const hasStep=args.stepId!==undefined||args.stepStatus!==undefined;
+      const plan=hasStep?updateTaskStep(current.plan,args):current.plan;
+      if(!current.schemaVersion&&!plan&&!PHASES.includes(args.phase))throw new Error('阶段或状态无效。');
       const dependencies={...current.dependencies};
       for(const [key,value] of Object.entries(args.dependencies||{})){
         if(!['gtm','browser','chrome'].includes(key)||!['unknown','ready','failed'].includes(value))throw new Error('依赖状态无效。');dependencies[key]=value;
       }
-      const next={...current,phase:args.phase,status:args.status,message:String(args.message||'').slice(0,2000),dependencies,updatedAt:new Date().toISOString()};
+      const next={...current,...plan?{plan}:{},phase:plan?'executing':args.phase||current.phase,status:args.status||(plan?planRunStatus(plan):current.status),message:String(args.message||'').slice(0,2000),dependencies,updatedAt:new Date().toISOString()};
       await writeJson(path,next);return next;
     }
     if(args.action==='finalize'){
-      const result=await verifyManifest(workspace,args.runId);const next={...current,phase:'export',status:'complete',message:result.summary,result,updatedAt:new Date().toISOString()};
+      if(current.schemaVersion===2&&!current.plan)throw new Error('请先保存并执行 AI 制定的计划。');
+      const unfinished=current.plan?.steps.filter(s=>!['completed','skipped'].includes(s.status))||[];
+      const finalStep=unfinished.length===1&&unfinished[0]===current.plan.steps.at(-1)&&unfinished[0].status==='in_progress'?unfinished[0]:null;
+      if(unfinished.length&&!finalStep)throw new Error('计划中还有未结束的步骤，请核对真实执行情况。');
+      const result=await verifyManifest(workspace,args.runId);
+      const plan=finalStep?updateTaskStep(current.plan,{stepId:finalStep.id,stepStatus:'completed',message:'实际报告文件已通过最终检查。'}):current.plan;
+      const next={...current,...plan?{plan}:{},phase:'export',status:'complete',message:result.summary,result,updatedAt:new Date().toISOString()};
       await writeJson(path,next);return next;
     }
     throw new Error('不支持的网页研究操作。');

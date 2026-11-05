@@ -3,6 +3,7 @@
 可修改、可本地运行的 **DeepSeek Harness 插件**，附完整中文教程。插件与 GitHub Pages 网站在同一个仓库。
 
 - [在线教程](https://iosyyy.github.io/gtm-research/)
+- [Demo 使用指南：安装、运行与修改](https://iosyyy.github.io/gtm-research/#demo-guide)
 - [下载插件源码包](https://iosyyy.github.io/gtm-research/downloads/dsh-web-research-plugin.zip)
 - [实现与接口说明](architecture.md)
 - [验证记录与能力边界](VERIFICATION.md)
@@ -19,7 +20,7 @@ https://github.com/iosyyy/gtm-research
 
 先读 README，下载仓库，再使用当前 Harness 支持的插件管理器安装 plugin 目录。
 不要手改个人 profile 配置。需要审批时正常申请。
-安装后确认侧边栏有“网页研究台”；需要重新加载时告诉我。
+安装后确认侧边栏有“网页研究台”；安装或更新完成后提醒我重开一次 Harness，让页面和后台一起生效。
 ```
 
 3. 在侧边栏打开「网页研究台」，填网页名称和地址，选择技能、数量及浏览器，再点「开始研究」。页面会留在研究台，进度自动更新。点独立的「查看执行过程」在同页查看消息、工具记录和输入框；需要完整对话时点「打开执行对话」。登录或授权按实际提示操作。
@@ -32,7 +33,7 @@ https://github.com/iosyyy/gtm-research
 dsh plugin --profile desktop add /absolute/path/gtm-research/plugin
 ```
 
-目录使用自己的实际路径。通过官方插件管理器添加本地目录同样可以。更新后若仍显示旧界面，关闭并重开 Harness。
+目录使用自己的实际路径。通过官方插件管理器添加本地目录同样可以。安装或更新后重开一次 Harness，使页面和后台一起生效；仅刷新页面可能仍在使用旧后端。
 
 ## 可以改什么
 
@@ -44,6 +45,12 @@ dsh plugin --profile desktop add /absolute/path/gtm-research/plugin
 - 默认选择系统默认浏览器，之后自动记住上次的设置。出于浏览器文件安全限制，重开页面需要重新选择上传文件。
 
 Zime 主要审核销售通话与 CRM，需要买方原话或导出数据。论坛讨论不足以证明预算、决策权、成交概率等信息，缺少材料时应该补充材料或换研究方式。
+
+## AI 计划怎么生成
+
+模板保存分析要求。点击开始后，AI 根据这次网页、材料、数量和目标生成执行计划，保存后才显示具体步骤。生成前显示“正在制定计划”，不会提前填入通用五步。开始前会检查后台协议，检测到旧后端就提示重开，不会静默发送无法保存计划的任务。
+
+执行时 AI 按步骤编号报告进行中、完成、等待材料或失败；需要调整时说明原因并保留已完成进度。计划和状态保存在任务目录，重新打开可继续读取。旧任务没有保存 AI 计划的，不补画步骤。其他计划步骤结束后，最后的交付检查步骤会在实际 PDF / Excel 文件检查通过时与任务一起完成。
 
 ## 浏览器怎么选
 
