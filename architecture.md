@@ -2,6 +2,12 @@
 
 插件为普通工作区包 `@iosyyy/dsh-web-research`，通过 Harness 插件管理器安装；不直接修改个人 profile。目标环境为实际安装版 Harness `0.2.1-rc.5`。
 
+## Git 仓库与 ZIP 安装
+
+仓库根目录的 `package.json` 与 `plugin/package.json` 声明同一个包名和版本。根包的 `dsh.bundle.patch` 指向 `./plugin/cordis.patch.yml`，Host、Client、图标与 locale 的 exports 指向 `./plugin/` 下实际文件；Client 声明与子包保持一致。根包按 files 清单分发所需源码，构建后的 client.js 已提交，不需要安装时执行构建脚本。
+
+这使插件管理器直接安装 Git 仓库地址时也能识别组合包。本地 `plugin` 目录与 ZIP 仍独立可安装。回归检查实际 npm pack 后的包并导入 Host、解析 Client / locale / 图标，避免只检查源码目录。
+
 ## 页面与 Agent 共用 Host 服务
 
 ```mermaid

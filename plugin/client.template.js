@@ -5,7 +5,7 @@ window.__ModuleLoader__.load({id:'@iosyyy/dsh-web-research',factory(require){
   const BUILTINS=/* TEMPLATE_CATALOG */;
   const SKILL_CATALOG=/* SKILL_CATALOG */;
   const SOURCES=[{id:'gtmagents/gtm-agents',name:'GTM Agents',description:'市场、内容、销售与用户研究'},{id:'zime-ai/zime-gtm-skills',name:'Zime GTM Skills',description:'销售通话与 CRM 审核'}];
-  const release='1.5.0';
+  const release='1.5.1';
   const PANEL='web-research-studio',NS='@iosyyy/dsh-web-research',KEY='web-research-studio:v1';
   const words={panel:'网页研究台',title:'从网页里，找到下一步。',intro:'填好目标，剩下的采集、分析和报告交给 Harness。',content:'研究内容',websiteName:'网页名称',url:'网页地址',template:'研究模板',focus:'重点关注什么',quantity:'最多看多少项',all:'全部',report:'报告样式',optional:'可选',pdf:'PDF 模板',excel:'Excel 模板',choose:'选择文件',remove:'移除',start:'开始研究',busy:'正在准备…',records:'本次研究',open:'打开执行对话',continue:'已登录，继续',stop:'停止本轮',empty:'研究开始后，进度和报告会出现在这里。',edit:'调整研究模板',save:'保存为自己的模板',saved:'已保存',agent:'交给 Agent 调整',workspace:'保存位置',history:'最近的研究',preview:'打开内置浏览器',running:'执行中',waiting:'等待操作或已结束',done:'报告已生成',error:'操作未完成',source:'查看技能来源',custom:'自定义模板',templateName:'模板名称',templateDescription:'怎么分析',skillHint:'默认模板来自 gtm-agents 的真实技能和使用案例。',browser:'优先内置浏览器，受限时自动使用可见 Chrome。',reportHint:'上传后按你的版式和表格结构生成；留空则使用默认样式。',filePending:'已选择，开始研究时上传',clear:'清空',loginHint:'需要登录或权限时会提示你，完成后继续。',refresh:'查看最新结果',agentPlaceholder:'例如：增加一个面向 SaaS 产品的竞品调研模板，关注定价和迁移成本。',namePlaceholder:'例如：V2EX、公司官网、内部 CRM',focusPlaceholder:'例如：使用体验、反复出现的需求、可以做什么产品',quantityHint:'每项包含正文和可读取的评论；全部会分批处理。',nothing:'暂时没有任务',templates:'GTM 研究模板',uploadFailed:'模板上传失败，请重试。',invalidFile:'请选择 PDF 或 XLSX / XLTX 文件。'};
   const CSS=/* STUDIO_STYLES */;

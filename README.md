@@ -18,7 +18,8 @@
 帮我安装网页研究台插件：
 https://github.com/iosyyy/gtm-research
 
-先读 README，下载仓库，再使用当前 Harness 支持的插件管理器安装 plugin 目录。
+先读 README，再使用当前 Harness 支持的插件管理器，从上面的 Git 仓库地址安装。
+如果需要本地安装，下载仓库后安装仓库根目录或 plugin 目录。
 不要手改个人 profile 配置。需要审批时正常申请。
 安装后确认侧边栏有“网页研究台”；安装或更新完成后提醒我重开一次 Harness，让页面和后台一起生效。
 ```
@@ -30,10 +31,16 @@ https://github.com/iosyyy/gtm-research
 熟悉命令行的用户可在已安装 `dsh` 的环境运行：
 
 ```sh
-dsh plugin --profile desktop add /absolute/path/gtm-research/plugin
+dsh plugin --profile desktop add https://github.com/iosyyy/gtm-research
 ```
 
-目录使用自己的实际路径。通过官方插件管理器添加本地目录同样可以。安装或更新后重开一次 Harness，使页面和后台一起生效；仅刷新页面可能仍在使用旧后端。
+也可以在 Harness 的「插件 → 安装 → Git 仓库」中粘贴上面的地址。仓库根目录与 `plugin` 子目录都是完整组合包；本地安装可选择其中任一目录，ZIP 解压后选择带 `package.json` 的目录。安装或更新后重开一次 Harness，使页面和后台一起生效；仅刷新页面可能仍在使用旧后端。
+
+如果之前出现「这个包没有声明组合包」，关闭失败弹窗后，用同一个地址重新安装。旧包缺少仓库根目录声明，已在 1.5.1 修复。若重试仍命中旧下载缓存，可使用下面的固定版本地址：
+
+```text
+https://github.com/iosyyy/gtm-research#v1.5.1
+```
 
 ## 可以改什么
 
@@ -74,6 +81,7 @@ Zime 主要审核销售通话与 CRM，需要买方原话或导出数据。论�
 ## 文件与源码
 
 ```text
+package.json         Git 仓库直接安装入口
 plugin/              Harness 插件、Host 服务与测试
 docs/                GitHub Pages 静态教程、中文技能目录与插件下载
 scripts/             打包脚本

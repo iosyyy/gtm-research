@@ -1,0 +1,62 @@
+{
+  "name": "@iosyyy/dsh-web-research",
+  "version": "1.5.1",
+  "private": true,
+  "type": "module",
+  "description": "可修改的 Harness 网页研究台：两套 GTM 技能、可见浏览器、真实任务状态与本地报告。",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iosyyy/gtm-research.git"
+  },
+  "exports": {
+    ".": "./plugin/index.js",
+    "./client": "./plugin/client.js",
+    "./locale/*.json": "./plugin/locale/*.json",
+    "./icon": "./plugin/icon.svg"
+  },
+  "files": [
+    "plugin/index.js",
+    "plugin/client.js",
+    "plugin/plan.js",
+    "plugin/templates.json",
+    "plugin/studio.css",
+    "plugin/client.template.js",
+    "plugin/build.mjs",
+    "plugin/cordis.patch.yml",
+    "plugin/locale/*.json",
+    "plugin/icon.svg",
+    "plugin/README.md",
+    "plugin/skills.json",
+    "plugin/custom-skills.js",
+    "plugin/host-service.js",
+    "plugin/task-plan.js",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "licenses/"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./plugin/cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-api-session-controller",
+        "@deepseek-ai/dsh-api-workspace-controller",
+        "@deepseek-ai/dsh-client-ui-workspace",
+        "@deepseek-ai/dsh-client-file-upload",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node plugin/build.mjs",
+    "test": "node --test plugin/*.test.mjs"
+  }
+}

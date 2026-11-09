@@ -91,3 +91,14 @@ unzip -t docs/downloads/dsh-web-research-plugin.zip
 混合版本启动的回归测试观察到旧 Host 原先仍发送了任务；修复后发送次数为 0 并明确提示重开。安装/更新后需重开 Harness，让 Host 与 Client 一起生效，包版本显示本身不能证明旧进程已加载新代码。
 
 在线教程新增 Demo 使用指南入口与八步操作：安装登录 Harness、安装 Demo、目标与范围、材料与模板、AI 计划、进度与对话、报告检查、修改源码。本地浏览器验证直接进入指南、从直接对话切回指南、安装与修改步骤、复制话术成功提示。公开站点继续只提供教程与下载，实际执行在自己的 Harness 中进行。
+
+
+## 1.5.1 Git 仓库直接安装（2026-11-09）
+
+用户通过 `https://github.com/iosyyy/gtm-research` 安装时，pnpm 下载成功，但将没有根 package.json 的仓库识别为普通 `gtm-research` 依赖。插件管理器随后报告“这个包没有声明组合包”。原来的组合包声明只在 plugin 子目录，Git 仓库安装不会自动下钻。
+
+根目录现在声明 `@iosyyy/dsh-web-research@1.5.1`，bundle patch 和 exports 指向 plugin 下实际文件，Client 声明与独立插件保持一致。ZIP 和本地 plugin 目录仍沿用原结构。构建产物已提交，无需安装时执行脚本。
+
+新增两个安装回归测试，先观察旧代码因缺少根 package.json 失败，再验证修复。实际 npm pack 后解压，Host 可导入，Client、locale、图标与 patch 均可解析，不依赖源码检出目录。完整测试 34/34 通过。
+
+使用这台电脑安装的 Harness 0.2.1-rc.5 官方 CLI，在隔离的临时 DSH_HOME 下分别安装仓库根目录和打包 tarball，退出码均为 0，包名与版本正确，自动进入 dsh.profile.bundles；dump-config 正确组合 web-research 条目。隔离检查不修改用户的其他插件或兼容性豁免。
