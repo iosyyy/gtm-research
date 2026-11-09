@@ -106,3 +106,18 @@ unzip -t docs/downloads/dsh-web-research-plugin.zip
 已发布的 main 提交 46b706d 和 v1.5.1 标签，随后通过同一个 Git 地址在全新隔离 profile 中实际下载安装，退出码 0；下载后的包版本为 1.5.1，Host、Client 与 bundle patch 文件存在，自动选择成功。GitHub Pages 构建状态 built，在线 ZIP 与本地包逐字节一致，在线指南已更新到 1.5.1。
 
 用户本机 desktop profile 也已通过官方 `dsh plugin --profile desktop add` 从同一个 Git 地址安装成功，退出码 0；新增 @iosyyy/dsh-web-research 1.5.1，并自动替换此前错误识别的 gtm-research 0.0.0。其他旧 hooks 插件仍返回自身的版本警告，没有替它们添加兼容性豁免。由于桌面工具当前无法定位 Harness 可见窗口，此次仅确认磁盘安装和组合选择，不宣称已验证本次运行中的界面重载。
+
+
+## 安装页面的 ambiguous-install 复现（2026-11-09）
+
+此前官方 CLI 安装退出码 0 只能证明包已进入依赖与组合选择，不能证明页面的 installBundle 服务识别成功。用户再次点击原 Git 地址时，实际日志返回 Already up to date / exitCode 0，desktop profile 中相同的 Git 依赖与组合选择仍存在，界面报告 ambiguous-install。
+
+这次直接导入已安装 Harness 0.2.1-rc.5 的官方 PluginManager 和 app-boot，在新建的 `/private/tmp/gtm-manager-validation-*` profile 内运行真实 installBundle 服务、真实 Git 与 pnpm；没有写入用户 desktop profile，也没有操作其安装、卸载或兼容性豁免。测试无模型请求、无浏览器。临时 profile 仅挂载官方管理器，安装使用 enabled:false；因此验证的是安装识别与 bundle 校验，不宣称验证研究台界面激活。
+
+按顺序实测：
+
+1. 首次安装 `https://github.com/iosyyy/gtm-research`：stage=enable，bundle=@iosyyy/dsh-web-research，version=1.5.1，exitCode=0，application=restart-required。
+2. 再次安装同一地址：stage=install，exitCode=0，application=failed，error.code=ambiguous-install；依赖未变化。
+3. 从该状态安装 `https://github.com/iosyyy/gtm-research#v1.5.1`：stage=enable，version=1.5.1，exitCode=0，changed=true，application=restart-required；依赖更新为 github:iosyyy/gtm-research#v1.5.1。
+
+固定版本地址解决这一次由未带版本地址转入的识别问题，不代表重复添加同一个版本地址也可成功。后续使用宿主更新入口。此问题发生在插件 JS 加载之前，研究插件自身无法修改宿主安装器；没有用安装脚本或更改包名规避它。

@@ -27,7 +27,7 @@ const pluginSteps=[
  [
   "下载并安装 Demo",
   "把安装这件事交给 Harness。",
-  "在 Harness 的“插件 → 安装 → Git 仓库”中粘贴仓库地址即可，也可以把下面的话发给新对话。下载 ZIP 后，选择解压出来带 package.json 的目录；安装或更新后重开一次 Harness，让后台也加载新代码。",
+  "在 Harness 的“插件 → 安装 → Git 仓库”中粘贴仓库地址即可，也可以把下面的话发给新对话。下载 ZIP 后，选择解压出来带 package.json 的目录。若提示“无法从依赖变更中确定安装了哪一个包”，关闭旧任务，新建安装任务，地址填 https://github.com/iosyyy/gtm-research#v1.5.1。安装或更新后重开一次 Harness，让后台也加载新代码。",
   "帮我安装网页研究台 Demo：\nhttps://github.com/iosyyy/gtm-research\n\n先读 README，再用当前 Harness 支持的插件管理器从上面的 Git 仓库地址安装。如果需要本地安装，下载仓库后选择仓库根目录或 plugin 目录。不要手改个人 profile 配置。需要安装或目录权限时正常申请。安装后确认侧边栏有“网页研究台”，安装或更新完成后，提醒我重开一次 Harness，让页面和后台一起生效。",
   "安装后重开一次 Harness，侧边栏出现“网页研究台”；底部版本为 1.5.1 或更新版本。"
  ],
