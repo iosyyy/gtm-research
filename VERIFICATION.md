@@ -121,3 +121,14 @@ unzip -t docs/downloads/dsh-web-research-plugin.zip
 3. 从该状态安装 `https://github.com/iosyyy/gtm-research#v1.5.1`：stage=enable，version=1.5.1，exitCode=0，changed=true，application=restart-required；依赖更新为 github:iosyyy/gtm-research#v1.5.1。
 
 固定版本地址解决这一次由未带版本地址转入的识别问题，不代表重复添加同一个版本地址也可成功。后续使用宿主更新入口。此问题发生在插件 JS 加载之前，研究插件自身无法修改宿主安装器；没有用安装脚本或更改包名规避它。
+
+
+## 1.5.1 Host 实际启用与旧路径诊断（2026-11-09）
+
+新的用户截图已通过 Git 下载及依赖识别，失败发生在 enable：导入仍指向原开发目录下的 plugin/plugin。只读检查用户当前安装目录，Host、Client 和 bundle patch 均存在，版本 1.5.1，依赖为 github:iosyyy/gtm-research#v1.5.1，组合也已选择。磁盘安装与正在运行的旧路径必须分开判断。
+
+补测官方 PluginManager + app-boot + HMR + 实际 Loader，使用全新临时 profile、真实 pnpm/Git，enabled:true。插件依赖的 commands、tools、workingDirectory 使用临时上下文中的测试提供者，未接入用户会话或模型。实际观察到 Host 注册 web-research 命令和 web_research_manage 工具，安装返回 stage=enable、application=applied、bundle=@iosyyy/dsh-web-research、version=1.5.1、exitCode=0。
+
+随后在隔离 profile 中分别验证：先安装本地 plugin 目录再切换 Git tag；增加与 Desktop 一致的 createRuntimeResolution / PluginPackages 后再运行同一切换。两次均 application=applied，没有复现用户旧进程中的 ENOENT。因此没有凭路径截图修改包名或任意复制一层 plugin 目录；当前证据支持先完全退出旧进程再打开。用户随后自行用 ⌘Q 完全退出并重新打开，明确确认能看到「网页研究台」，此次旧路径加载问题恢复。
+
+以上是 Host 导入与注册验证，不是完整研究任务或所有 Client 组件的浏览器验收。本次未执行用户 profile 的安装、卸载、启停、重启或配置修改。
