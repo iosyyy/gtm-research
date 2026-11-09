@@ -94,7 +94,7 @@ VERIFICATION.md      实际验证及已知限制
 
 ```sh
 node plugin/build.mjs
-node --test plugin/*.test.mjs
+node --test plugin/*.test.mjs scripts/*.test.mjs
 python3 scripts/package_plugin.py
 python3 -m http.server 8767 --directory docs --bind 127.0.0.1
 ```

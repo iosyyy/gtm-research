@@ -57,6 +57,6 @@
   },
   "scripts": {
     "build": "node plugin/build.mjs",
-    "test": "node --test plugin/*.test.mjs"
+    "test": "node --test plugin/*.test.mjs scripts/*.test.mjs"
   }
 }

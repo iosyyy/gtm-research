@@ -102,3 +102,7 @@ unzip -t docs/downloads/dsh-web-research-plugin.zip
 新增两个安装回归测试，先观察旧代码因缺少根 package.json 失败，再验证修复。实际 npm pack 后解压，Host 可导入，Client、locale、图标与 patch 均可解析，不依赖源码检出目录。完整测试 34/34 通过。
 
 使用这台电脑安装的 Harness 0.2.1-rc.5 官方 CLI，在隔离的临时 DSH_HOME 下分别安装仓库根目录和打包 tarball，退出码均为 0，包名与版本正确，自动进入 dsh.profile.bundles；dump-config 正确组合 web-research 条目。隔离检查不修改用户的其他插件或兼容性豁免。
+
+已发布的 main 提交 46b706d 和 v1.5.1 标签，随后通过同一个 Git 地址在全新隔离 profile 中实际下载安装，退出码 0；下载后的包版本为 1.5.1，Host、Client 与 bundle patch 文件存在，自动选择成功。GitHub Pages 构建状态 built，在线 ZIP 与本地包逐字节一致，在线指南已更新到 1.5.1。
+
+用户本机 desktop profile 也已通过官方 `dsh plugin --profile desktop add` 从同一个 Git 地址安装成功，退出码 0；新增 @iosyyy/dsh-web-research 1.5.1，并自动替换此前错误识别的 gtm-research 0.0.0。其他旧 hooks 插件仍返回自身的版本警告，没有替它们添加兼容性豁免。由于桌面工具当前无法定位 Harness 可见窗口，此次仅确认磁盘安装和组合选择，不宣称已验证本次运行中的界面重载。
