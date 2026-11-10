@@ -150,3 +150,17 @@ unzip -t docs/downloads/dsh-web-research-plugin.zip
 1.6.0 最终检查：46/46 自动检查通过，包含上述 48 组提示词配置矩阵。在全新临时 profile 中使用官方 PluginManager + HMR + RuntimeResolution 实际安装并启用 npm pack 产物，返回 application=applied、version=1.6.0、exitCode=0；注册的 web-research 命令和 web_research_manage 工具实际完成 begin → set_plan → progress → finalize，持久化 timingVersion=1、startedAt、finishedAt 与 completedAt。使用的 PDF/XLSX 是隔离文件签名夹具，不是模型生成研究报告。
 
 为避免把附件上传和队列等待归为纯 AI 响应，顶部第二项标为“准备与计划”；从 Host begin 到首次 plan.createdAt。总计时也从 Host 创建任务起计，不伪称覆盖会话建立之前的按钮延迟。
+
+## 1.7.0 PDF 版式选择与研究用途（2026-11-11）
+
+新增简洁报告、汇报演示、数据对照、阅读简报四种可选版式。每种有两页真实 PDF 样张，随 Git 包、独立插件目录和下载 ZIP 分发。Host 在 begin 校验编号、将所选文件复制到任务 `_inputs/pdf-template.pdf` 并返回 pdfTemplateVersion=1；Client 核对能力与所选编号后才发送任务。上传 PDF 优先，移除后恢复原预设；PDF 研究材料不会误作模板。报告话术要求替换占位内容，不保留样张编号和模型名称、参数、用量。
+
+加入需求与机会发现、竞品对比、用户反馈整理、潜客线索整理、CRM 商机体检、销售通话复盘六个研究用途。旧模板与自定义编辑保留，目录升级补入新增选项；研究模板没有模型配置。
+
+55/55 自动检查通过。涵盖实际组件回调选择/上传/移除、旧 Host 或版式错配时停止提交、目录迁移保留编辑与选择、PDF 文件签名、越界符号链接拒绝、提示词模板路径与材料分类，以及实际 npm pack 解压后读取 PDF。既有计划、计时与 48 组提示词约束检查继续通过。构建、Client / 在线教程语法检查、git diff --check 通过。
+
+在全新临时 profile 中使用当前已安装 Harness 的官方 PluginManager + HMR + RuntimeResolution，实际安装并启用 1.7.0 npm pack 产物，application=applied、exitCode=0。注册命令 begin 返回 presentation 版式，实际复制 68,708 字节 PDF；注册 Agent 工具继续执行 set_plan → progress → finalize，步骤起止与 completedAt 均持久化。交付检查仍使用隔离签名夹具，不冒充模型研究结果。全程未改动用户 profile 或替用户安装、卸载、重启插件。
+
+PDF 用 ReportLab 生成、pypdfium2 渲染，核对 8 页中文与边界；预览 PNG 来自实际 PDF。样张只有占位内容，不包含研究结果或模型名称。用可见 Chrome for Testing 的独立临时资料目录尝试检查组件，但 agent-desktop 返回 window_without_accessibility_element / CoreGraphics no active displays，本轮未完成新版组件屏幕验收，未用无头浏览器替代；临时浏览器已关闭。组件交互由实际构建 Client 的回调测试覆盖。
+
+在线指南更新版式选择、上传优先与 1.7.0 安装地址，并新增 PDF 样张预览/下载页。本轮未运行新的完整模型研究，未验证任意上传版式精确复刻，也未重新测量模型效果与任务耗时。

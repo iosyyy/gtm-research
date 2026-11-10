@@ -16,6 +16,12 @@ dsh plugin --profile desktop add https://github.com/iosyyy/gtm-research
 
 1.6.0 增加总耗时、准备与计划用时与各步骤用时，每秒刷新，起止时间由 Host 保存。计时包含等待和暂停，完成后固定；旧记录没有计时信息时显示“未记录”。升级后需要完全退出并重开 Harness，让后台加载计时支持。
 
+1.7.0 可在页面选择「简洁报告、汇报演示、数据对照、阅读简报」4 种 PDF 版式并预览，选择会保存。每种预设都有随包分发的真实 PDF，由后台复制到本次任务 `_inputs/pdf-template.pdf` 供 AI 读取。上传 PDF 优先于预设，移除后恢复原选择；报告不写模型名称、参数或用量。
+
+新增 6 个研究用途，原有模板与自定义修改继续保留。更新后请完全退出再打开 Harness，底部应显示 1.7.0。
+
+- 修改 PDF 版式说明：`pdf-styles.js`
+- 修改实际 PDF：`pdf-templates/*.pdf`（生成脚本在仓库 `scripts/generate_pdf_templates.py`）
 - 修改样式：`studio.css`
 - 修改组件：`client.template.js`
 - 修改默认模板：`templates.json`

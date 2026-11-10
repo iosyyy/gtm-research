@@ -26,7 +26,7 @@ test('starting research queues the real task without navigating out of the workb
   const declaration=source.match(/async function start\(\)\{[\s\S]*?(?=\n    async function preview)/)?.[0];
   assert.ok(declaration);
   let navigations=0,sent=0,started=0;
-  const sandbox={busy:false,files:{pdf:null,excel:null},materials:[],setError:()=>{},setNotice:()=>{},setBusy:()=>{},setHostState:()=>{},setExecutionOpen:()=>{},settings:()=>({url:'https://example.com/'}),newRun:async kind=>{assert.equal(kind,'research');return {id:'run-test-12345678',sessionId:'session-background'};},hostOp:async(_run,args)=>{assert.equal(args.action,'begin');started++;return {schemaVersion:2,timingVersion:1,status:'running'};},buildPrompt:()=>'Real task prompt',send:async(_run,content)=>{sent++;assert.equal(content[0].text,'Real task prompt');},openInternal:async()=>navigations++};
+  const sandbox={busy:false,files:{pdf:null,excel:null},materials:[],setError:()=>{},setNotice:()=>{},setBusy:()=>{},setHostState:()=>{},setExecutionOpen:()=>{},settings:()=>({url:'https://example.com/'}),newRun:async kind=>{assert.equal(kind,'research');return {id:'run-test-12345678',sessionId:'session-background'};},hostOp:async(_run,args)=>{assert.equal(args.action,'begin');started++;return {schemaVersion:2,timingVersion:1,pdfTemplateVersion:1,reportTemplate:{id:'clean'},status:'running'};},buildPrompt:()=>'Real task prompt',send:async(_run,content)=>{sent++;assert.equal(content[0].text,'Real task prompt');},openInternal:async()=>navigations++};
   await vm.runInNewContext(`(${declaration})()`,sandbox);
   assert.equal(started,1);assert.equal(sent,1);assert.equal(navigations,0);
 });
@@ -47,6 +47,17 @@ test('starting with an old running Host explains reloading and does not send a t
   const sandbox={busy:false,files:{},materials:[],setError:value=>error=value,setNotice:()=>{},setBusy:()=>{},setHostState:()=>{},setExecutionOpen:()=>{},settings:()=>({}),newRun:async()=>({id:'run-test-12345678'}),hostOp:async()=>({phase:'dependencies',status:'running'}),buildPrompt:()=>'task',send:async()=>sent++};
   await vm.runInNewContext(`(${declaration})()`,sandbox);
   assert.equal(sent,0);assert.match(error,/后台.*旧版本/);assert.match(error,/重新加载|重开/);
+});
+
+test('starting with a mixed-version Host does not send a task with a missing or different PDF layout',async()=>{
+  const source=await readFile(new URL('client.template.js',import.meta.url),'utf8');
+  const declaration=source.match(/async function start\(\)\{[\s\S]*?(?=\n    async function preview)/)?.[0];
+  for(const extra of [{},{pdfTemplateVersion:1,reportTemplate:{id:'clean'}}]){
+    let sent=0,error='';
+    const sandbox={busy:false,files:{},materials:[],setError:value=>error=value,setNotice:()=>{},setBusy:()=>{},setHostState:()=>{},setExecutionOpen:()=>{},settings:()=>({pdfStyleId:'presentation'}),newRun:async()=>({id:'run-test-12345678'}),hostOp:async()=>({schemaVersion:2,timingVersion:1,...extra}),buildPrompt:()=>'task',send:async()=>sent++};
+    await vm.runInNewContext(`(${declaration})()`,sandbox);
+    assert.equal(sent,0);assert.match(error,/PDF 版式/);assert.match(error,/重开/);
+  }
 });
 
 test('the original conversation button explicitly opens the current task session',async()=>{

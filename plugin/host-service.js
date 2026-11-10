@@ -2,6 +2,7 @@ import {readFile,writeFile,mkdir,rename,stat,realpath} from 'node:fs/promises';
 import {resolve,join,sep} from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {reviseTaskPlan,updateTaskStep,planRunStatus} from './task-plan.js';
+import {resolvePdfStyle} from './pdf-styles.js';
 
 const RUN=/^run-[a-zA-Z0-9-]{8,64}$/;
 const PHASES=['dependencies','browser','collect','analysis','export'];
@@ -72,7 +73,17 @@ export function createResearchService({now=()=>Date.now()}={}){
     if(args.action==='begin'){
       if(current.createdAt)return current;
       const startedAt=timestamp();
-      const next={schemaVersion:2,timingVersion:1,runId:args.runId,phase:'planning',plan:null,status:'running',message:'正在根据网页、材料和研究目标制定计划。',createdAt:startedAt,updatedAt:startedAt,dependencies:{gtm:'unknown',browser:'unknown',chrome:'unknown'}};
+      const style=resolvePdfStyle(args.pdfStyleId||'clean');
+      const reportTemplate={id:style.id,name:style.name};
+      if(style.file){
+        const inputs=join(output,'_inputs');await mkdir(inputs,{recursive:true});await contained(output,inputs);
+        const bytes=await readFile(new URL('./pdf-templates/'+style.file,import.meta.url));
+        if(bytes.subarray(0,5).toString()!=='%PDF-')throw new Error('内置 PDF 模板损坏，请更新插件。');
+        const destination=join(inputs,'pdf-template.pdf'),temporary=destination+'.'+randomUUID()+'.tmp';
+        await writeFile(temporary,bytes,{mode:0o600});await rename(temporary,destination);
+        reportTemplate.relativePath='web-research-runs/'+args.runId+'/_inputs/pdf-template.pdf';
+      }
+      const next={schemaVersion:2,timingVersion:1,pdfTemplateVersion:1,reportTemplate,runId:args.runId,phase:'planning',plan:null,status:'running',message:'正在根据网页、材料和研究目标制定计划。',createdAt:startedAt,updatedAt:startedAt,dependencies:{gtm:'unknown',browser:'unknown',chrome:'unknown'}};
       await writeJson(path,next);return next;
     }
     if(args.action==='set_plan'){

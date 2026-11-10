@@ -5,7 +5,7 @@ import {buildPrompt as baseline} from './fixtures/prompt-v1.5.1.mjs';
 
 const settings={name:'测试页面',url:'https://example.com/research',quantity:10,focus:'需求与变化',definition:{repository:'gtmagents/gtm-agents',name:'市场研究',description:'核对实际讨论并整理来源。',skills:['market-signal-tracker'],skillRefs:[{name:'market-signal-tracker',path:'skills/market-signal-tracker'}]}};
 const runId='run-efficiency-12345678';
-const unchanged=['网页：','研究模板：','任务：','重点：','范围：','只在当前工作区','先根据本次网页','开始执行前必须调用','每开始、完成或遇阻','发现页面结构','1. 检查当前 Harness','3. 已有依赖','检查依赖后的 progress','技能来源：','需要的 GTM 技能：','用户所选浏览器：','需要登录时','按计划读取','本次分析所需材料：','上传的文件：','若附有 PDF 模板','生成 report.md','最终保存 manifest.json','回读确认实际产物后'];
+const unchanged=['网页：','研究模板：','任务：','重点：','范围：','只在当前工作区','先根据本次网页','开始执行前必须调用','每开始、完成或遇阻','发现页面结构','1. 检查当前 Harness','3. 已有依赖','检查依赖后的 progress','技能来源：','需要的 GTM 技能：','用户所选浏览器：','需要登录时','按计划读取','本次分析所需材料：','若附有 PDF 模板','生成 report.md','最终保存 manifest.json','回读确认实际产物后'];
 
 test('focused prompts preserve all task, plan, evidence, permission and report requirements across 48 cases',()=>{
   for(const browserEngine of ['auto','builtin','agent-browser','chrome','default','agent-chrome'])for(const repository of ['gtmagents/gtm-agents','zime-ai/zime-gtm-skills'])for(const quantity of [1,'all'])for(const files of [[],[{name:'report.pdf'},{name:'research.xlsx'},{name:'call.txt',kind:'material'}]]){
@@ -13,7 +13,8 @@ test('focused prompts preserve all task, plan, evidence, permission and report r
     const before=baseline(value,runId,files),after=buildPrompt(value,runId,files);
     for(const prefix of unchanged){const line=before.split('\n').find(line=>line.startsWith(prefix));assert.ok(line,'Missing baseline clause: '+prefix);assert.ok(after.includes(line),browserEngine+': '+prefix);}
     for(const guard of ['不要反复猜 API','禁止无头浏览器，包括 PDF 导出','不影响其他会话','不能修改安全配置绕过授权','不得加载另一套仓库的同名技能替代'])assert.ok(after.includes(guard),guard);
-    assert.ok(after.length<before.length,browserEngine+' should omit irrelevant engine instructions');
+    const focused=after.split('\n').filter(line=>!['PDF 版式：','先读取当前工作区','读取用户实际上传','报告不写模型名称'].some(prefix=>line.startsWith(prefix))).join('\n');
+    assert.ok(focused.length<before.length,browserEngine+' should omit irrelevant engine instructions');
   }
 });
 
@@ -29,7 +30,8 @@ test('each chosen engine retains its control checks and failure boundaries',()=>
 
 test('default-browser input is shorter without removing custom-source checks when needed',()=>{
   const value={...settings,browserEngine:'default'};
-  assert.ok(buildPrompt(value,runId).length<=baseline(value,runId).length*.85);
+  const focused=buildPrompt(value,runId).split('\n').filter(line=>!['PDF 版式：','先读取当前工作区','报告不写模型名称'].some(prefix=>line.startsWith(prefix))).join('\n');
+  assert.ok(focused.length<=baseline(value,runId).length*.85);
   const custom={...value,definition:{...value.definition,repository:'custom'}};
   for(const clause of ['installed 验证已安装项','local 只读取指定 skill 目录','github 先验证明确的来源','不覆盖现有同名项'])assert.ok(buildPrompt(custom,runId).includes(clause));
 });

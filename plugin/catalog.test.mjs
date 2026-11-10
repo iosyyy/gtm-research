@@ -6,6 +6,24 @@ import {validateCustomSkill} from './custom-skills.js';
 import {buildPrompt} from './plan.js';
 const catalog=JSON.parse(await readFile(new URL('skills.json',import.meta.url)));
 const templates=JSON.parse(await readFile(new URL('templates.json',import.meta.url)));
+test('the six requested research uses are available without model bindings',()=>{
+  for(const name of ['需求与机会发现','竞品对比','用户反馈整理','潜客线索整理','CRM 商机体检','销售通话复盘']){
+    const template=templates.find(t=>t.name===name);assert.ok(template,name);
+    assert.ok(!Object.keys(template).some(key=>/model|provider|temperature/i.test(key)));
+  }
+});
+test('upgrading a saved catalog adds missing defaults while preserving custom edits and preferences',async()=>{
+  const source=await readFile(new URL('client.template.js',import.meta.url),'utf8');
+  const fn=source.match(/function read\(\)\{[\s\S]*?(?=\n  function remembered)/)[0];
+  const saved={catalogVersion:2,templates:[{id:'market-signals',name:'我修改的名字',description:'我的要求',repository:'gtmagents/gtm-agents',skills:['market-signal-tracker'],skillRefs:[]}],preferences:{selected:'market-signals'}};
+  const value=vm.runInNewContext(`(${fn})()`,{BUILTINS:templates,KEY:'test',localStorage:{getItem:()=>JSON.stringify(saved)}});
+  assert.ok(value.templates.some(t=>t.name==='销售通话复盘'));
+  assert.equal(value.templates.find(t=>t.id==='market-signals').name,'我修改的名字');
+  assert.equal(value.preferences.selected,'market-signals');assert.equal(value.catalogVersion,3);
+  const chosen={...saved,catalogVersion:3};
+  const current=vm.runInNewContext(`(${fn})()`,{BUILTINS:templates,KEY:'test',localStorage:{getItem:()=>JSON.stringify(chosen)}});
+  assert.equal(current.templates.length,1);
+});
 test('both source catalogs have Chinese purposes and traceable unique identities',()=>{
   assert.equal(catalog.filter(s=>s.repository==='gtmagents/gtm-agents').length,244);
   assert.equal(catalog.filter(s=>s.repository==='zime-ai/zime-gtm-skills').length,71);

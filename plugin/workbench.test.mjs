@@ -23,6 +23,23 @@ test('first use picks the system browser and preserves a remembered explicit cho
   assert.equal(walk(restored,n=>n.type==='select'&&n.children.some(c=>c?.props?.value==='agent-chrome'))[0].props.value,'chrome');
 });
 
+test('PDF presets can be selected and an uploaded PDF overrides them until removed',()=>{
+  const app=workbench();let tree=app.render();
+  let styles=walk(tree,n=>n.type==='input'&&n.props.name==='wrs-pdf-style');
+  assert.equal(styles.length,4);assert.equal(styles.find(s=>s.props.checked).props.value,'clean');
+  styles.find(s=>s.props.value==='presentation').props.onChange();tree=app.render();
+  styles=walk(tree,n=>n.type==='input'&&n.props.name==='wrs-pdf-style');
+  assert.equal(styles.find(s=>s.props.checked).props.value,'presentation');
+  const input=walk(tree,n=>n.type==='input'&&n.props.accept==='.pdf')[0];
+  input.props.onChange({target:{files:[{name:'brand.pdf',size:100}]}});tree=app.render();
+  assert.ok(walk(tree,n=>n.type==='input'&&n.props.name==='wrs-pdf-style').every(n=>n.props.disabled));
+  assert.match(text(tree),/优先使用你的模板/);
+  button(tree,'移除 brand.pdf').props.onClick();tree=app.render();
+  styles=walk(tree,n=>n.type==='input'&&n.props.name==='wrs-pdf-style');
+  assert.equal(styles.find(s=>s.props.checked).props.value,'presentation');
+  assert.ok(styles.every(n=>!n.props.disabled));
+});
+
 test('unchecking a selected skill updates the filter and saved template with the same selection',()=>{
   const app=workbench();let tree=app.render();
   button(tree,'只看已选').props.onClick();tree=app.render();
@@ -51,8 +68,8 @@ test('template dialog cancels without changing options and edits the selected te
   tree=app.render();button(tree,'编辑模板').props.onClick();tree=app.render();
   walk(tree,n=>n.type==='label'&&text(n).startsWith('模板名称'))[0].children.find(n=>n.type==='input').props.onChange({target:{value:'新的市场信号模板'}});
   tree=app.render();walk(tree,n=>n.type==='form')[0].props.onSubmit({preventDefault(){}});
-  assert.equal(app.saved().templates.length,12);
-  assert.equal(app.saved().templates.find(t=>t.id==='market-signals').name,'新的市场信号模板');
+  assert.equal(app.saved().templates.length,18);
+  assert.equal(app.saved().templates.find(t=>t.id==='research-opportunities').name,'新的市场信号模板');
 });
 
 test('legacy personal-skill selection returns to the supported catalog with no add-skill entry',()=>{

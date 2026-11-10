@@ -1,5 +1,150 @@
 [
   {
+    "id": "research-opportunities",
+    "name": "需求与机会发现",
+    "description": "输出重复需求、未满足的问题、机会、优先级和逐条来源。",
+    "skills": [
+      "market-signal-tracker",
+      "community-insight-taxonomy"
+    ],
+    "example": "分析开发者论坛最近讨论，找出重复出现的问题。",
+    "source": "plugins/competitive-intelligence/skills/market-signal-tracker",
+    "repository": "gtmagents/gtm-agents",
+    "skillRefs": [
+      {
+        "name": "market-signal-tracker",
+        "path": "plugins/competitive-intelligence/skills/market-signal-tracker"
+      },
+      {
+        "name": "community-insight-taxonomy",
+        "path": "plugins/community-building/skills/community-insight-taxonomy"
+      }
+    ],
+    "caption": "发现需求与机会"
+  },
+  {
+    "id": "research-competitors",
+    "name": "竞品对比",
+    "description": "输出定位、功能、可核对的价格信息、用户评价和差异矩阵，缺失信息标未知。",
+    "skills": [
+      "competitive-intel",
+      "battlecard-library"
+    ],
+    "example": "对比几款工具的公开介绍和用户反馈。",
+    "source": "plugins/product-marketing/skills/competitive-intel",
+    "repository": "gtmagents/gtm-agents",
+    "skillRefs": [
+      {
+        "name": "competitive-intel",
+        "path": "plugins/product-marketing/skills/competitive-intel"
+      },
+      {
+        "name": "battlecard-library",
+        "path": "plugins/competitive-intelligence/skills/battlecard-library"
+      }
+    ],
+    "caption": "功能、定位与差异"
+  },
+  {
+    "id": "research-feedback",
+    "name": "用户反馈整理",
+    "description": "分类整理好评、吐槽与问题，列出频次、引用、来源和改进优先级。",
+    "skills": [
+      "community-insight-taxonomy",
+      "voice-of-customer"
+    ],
+    "example": "从论坛帖子和评论整理用户为什么喜欢或放弃某类产品。",
+    "source": "plugins/community-building/skills/community-insight-taxonomy",
+    "repository": "gtmagents/gtm-agents",
+    "skillRefs": [
+      {
+        "name": "community-insight-taxonomy",
+        "path": "plugins/community-building/skills/community-insight-taxonomy"
+      },
+      {
+        "name": "voice-of-customer",
+        "path": "plugins/customer-journey-orchestration/skills/voice-of-customer"
+      }
+    ],
+    "caption": "把反馈整理清楚"
+  },
+  {
+    "id": "research-leads",
+    "name": "潜客线索整理",
+    "description": "输出公开组织或潜客线索、需求证据、匹配原因与待确认信息，不编造个人资料。只整理线索，不联系潜客或发送消息。",
+    "skills": [
+      "lead-qualification",
+      "social-selling"
+    ],
+    "example": "从公开讨论识别可能需要某种工具的组织和需求。",
+    "source": "docs/use-cases/lead-generation-workflow.md",
+    "repository": "gtmagents/gtm-agents",
+    "skillRefs": [
+      {
+        "name": "lead-qualification",
+        "path": "plugins/sales-prospecting/skills/lead-qualification"
+      },
+      {
+        "name": "social-selling",
+        "path": "plugins/sales-prospecting/skills/social-selling"
+      }
+    ],
+    "caption": "需求证据与匹配度"
+  },
+  {
+    "id": "crm-checkup",
+    "repository": "zime-ai/zime-gtm-skills",
+    "name": "CRM 商机体检",
+    "description": "基于有权限的 CRM 或导出表，输出字段缺口、商机风险、跟进建议，不推算未提供的收入。只读分析，不修改客户记录。",
+    "skills": [
+      "pipeline-review",
+      "deal-risk-digest"
+    ],
+    "source": "skills/pipeline-review",
+    "example": "打开内部 CRM 页面，或上传商机导出。",
+    "requires": "销售通话文字稿、客户记录或 CRM 数据；论坛讨论不足以完成正式审核。",
+    "skillRefs": [
+      {
+        "name": "pipeline-review",
+        "path": "skills/pipeline-review"
+      },
+      {
+        "name": "deal-risk-digest",
+        "path": "skills/deal-risk-digest"
+      }
+    ],
+    "caption": "缺口、风险与跟进"
+  },
+  {
+    "id": "sales-call-review",
+    "repository": "zime-ai/zime-gtm-skills",
+    "name": "销售通话复盘",
+    "description": "基于通话文字稿或纪要，输出客户痛点、异议、买方承诺、负责人和下一步，缺少证据标未知。",
+    "skills": [
+      "deep-discovery",
+      "pain-finder",
+      "next-step-commitment"
+    ],
+    "source": "skills/deep-discovery",
+    "example": "上传销售通话文字稿或打开有权限的通话记录页。",
+    "requires": "销售通话文字稿、客户记录或 CRM 数据；论坛讨论不足以完成正式审核。",
+    "skillRefs": [
+      {
+        "name": "deep-discovery",
+        "path": "skills/deep-discovery"
+      },
+      {
+        "name": "pain-finder",
+        "path": "skills/pain-finder"
+      },
+      {
+        "name": "next-step-commitment",
+        "path": "skills/next-step-commitment"
+      }
+    ],
+    "caption": "客户痛点与承诺"
+  },
+  {
     "id": "market-signals",
     "name": "市场信号研究",
     "description": "从网站讨论中归纳需求、变化和机会，并给出来源、置信度和下一步。",

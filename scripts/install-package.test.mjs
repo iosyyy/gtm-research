@@ -29,7 +29,7 @@ test('packed repository resolves its bundle, Host, Client and locale without a c
   try{
     const [packed]=JSON.parse(execFileSync('npm',['pack','--ignore-scripts','--json','--pack-destination',temporary,'--cache',join(temporary,'cache')],{cwd:root,encoding:'utf8'}));
     const paths=new Set(packed.files.map(file=>file.path));
-    for(const file of ['plugin/index.js','plugin/client.js','plugin/host-service.js','plugin/task-plan.js','plugin/cordis.patch.yml','plugin/locale/zh.json','plugin/icon.svg','plugin/skills.json','plugin/templates.json'])assert.ok(paths.has(file),file);
+    for(const file of ['plugin/index.js','plugin/client.js','plugin/host-service.js','plugin/task-plan.js','plugin/cordis.patch.yml','plugin/locale/zh.json','plugin/icon.svg','plugin/skills.json','plugin/templates.json','plugin/pdf-styles.js',...['clean','presentation','data','editorial'].map(id=>'plugin/pdf-templates/'+id+'.pdf')])assert.ok(paths.has(file),file);
     assert.ok(![...paths].some(path=>path.startsWith('docs/')||path.endsWith('.test.mjs')));
     execFileSync('tar',['-xzf',join(temporary,packed.filename),'-C',temporary]);
     const directory=join(temporary,'package');
@@ -42,6 +42,10 @@ test('packed repository resolves its bundle, Host, Client and locale without a c
     assert.ok(existsSync(require.resolve(manifest.name+'/client')));
     assert.ok(existsSync(require.resolve(manifest.name+'/locale/zh.json')));
     assert.ok(existsSync(require.resolve(manifest.name+'/icon')));
+    const {createResearchService}=await import(pathToFileURL(join(directory,'plugin/host-service.js')).href);
+    const begun=await createResearchService().execute(temporary,{action:'begin',runId:'run-packagepdf-12345678',pdfStyleId:'data'});
+    assert.equal(begun.reportTemplate.id,'data');
+    assert.equal((await readFile(join(temporary,begun.reportTemplate.relativePath))).subarray(0,5).toString(),'%PDF-');
   }finally{
     await rm(temporary,{recursive:true,force:true});
   }
