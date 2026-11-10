@@ -5,7 +5,7 @@ window.__ModuleLoader__.load({id:'@iosyyy/dsh-web-research',factory(require){
   const BUILTINS=/* TEMPLATE_CATALOG */;
   const SKILL_CATALOG=/* SKILL_CATALOG */;
   const SOURCES=[{id:'gtmagents/gtm-agents',name:'GTM Agents',description:'市场、内容、销售与用户研究'},{id:'zime-ai/zime-gtm-skills',name:'Zime GTM Skills',description:'销售通话与 CRM 审核'}];
-  const release='1.5.1';
+  const release='1.6.0';
   const PANEL='web-research-studio',NS='@iosyyy/dsh-web-research',KEY='web-research-studio:v1';
   const words={panel:'网页研究台',title:'从网页里，找到下一步。',intro:'填好目标，剩下的采集、分析和报告交给 Harness。',content:'研究内容',websiteName:'网页名称',url:'网页地址',template:'研究模板',focus:'重点关注什么',quantity:'最多看多少项',all:'全部',report:'报告样式',optional:'可选',pdf:'PDF 模板',excel:'Excel 模板',choose:'选择文件',remove:'移除',start:'开始研究',busy:'正在准备…',records:'本次研究',open:'打开执行对话',continue:'已登录，继续',stop:'停止本轮',empty:'研究开始后，进度和报告会出现在这里。',edit:'调整研究模板',save:'保存为自己的模板',saved:'已保存',agent:'交给 Agent 调整',workspace:'保存位置',history:'最近的研究',preview:'打开内置浏览器',running:'执行中',waiting:'等待操作或已结束',done:'报告已生成',error:'操作未完成',source:'查看技能来源',custom:'自定义模板',templateName:'模板名称',templateDescription:'怎么分析',skillHint:'默认模板来自 gtm-agents 的真实技能和使用案例。',browser:'优先内置浏览器，受限时自动使用可见 Chrome。',reportHint:'上传后按你的版式和表格结构生成；留空则使用默认样式。',filePending:'已选择，开始研究时上传',clear:'清空',loginHint:'需要登录或权限时会提示你，完成后继续。',refresh:'查看最新结果',agentPlaceholder:'例如：增加一个面向 SaaS 产品的竞品调研模板，关注定价和迁移成本。',namePlaceholder:'例如：V2EX、公司官网、内部 CRM',focusPlaceholder:'例如：使用体验、反复出现的需求、可以做什么产品',quantityHint:'每项包含正文和可读取的评论；全部会分批处理。',nothing:'暂时没有任务',templates:'GTM 研究模板',uploadFailed:'模板上传失败，请重试。',invalidFile:'请选择 PDF 或 XLSX / XLTX 文件。'};
   const CSS=/* STUDIO_STYLES */;
@@ -16,12 +16,49 @@ window.__ModuleLoader__.load({id:'@iosyyy/dsh-web-research',factory(require){
   function marker(text,key){for(const line of text.split('\n').reverse()){if(!line.startsWith(key+':'))continue;try{return JSON.parse(line.slice(key.length+1).trim());}catch{return null;}}return null;}
   function safeResult(text,run){const r=marker(text,'WEB_RESEARCH_RESULT');const base=run?.directory?.replace(/\/$/,'')+'/web-research-runs/'+run?.id;return r?.ok===true&&r.outputDirectory?.replace(/\/$/,'')===base&&Array.isArray(r.files)&&r.files.length&&r.files.every(f=>typeof f.path==='string'&&f.path.startsWith(base+'/')&&!f.path.split('/').includes('..'))?r:null;}
   function EmbeddedExecution({renderFactorySlot}){return renderFactorySlot('conversation.content',{variant:'embedded',phase:'active',hero:false});}
-  function PlanProgress({state,hasRun,paused=false}){
+  function elapsedMilliseconds(start,end,now=Date.now()){
+    const from=typeof start==='string'?Date.parse(start):NaN,to=end===undefined?now:typeof end==='string'?Date.parse(end):NaN;
+    return Number.isFinite(from)&&Number.isFinite(to)?Math.max(0,to-from):null;
+  }
+  function formatElapsed(value){
+    if(value===null||!Number.isFinite(value))return '未记录';
+    const seconds=Math.floor(Math.max(0,value)/1000),hours=Math.floor(seconds/3600),minutes=Math.floor(seconds%3600/60),rest=seconds%60;
+    return hours?hours+'小时'+String(minutes).padStart(2,'0')+'分'+String(rest).padStart(2,'0')+'秒':minutes?minutes+'分'+String(rest).padStart(2,'0')+'秒':rest+'秒';
+  }
+  function stepElapsed(step,now){
+    if(!step.startedAt)return step.status==='pending'?'—':'未记录';
+    const ended=['completed','failed','skipped'].includes(step.status)?step.finishedAt||null:undefined;
+    const value=elapsedMilliseconds(step.startedAt,ended,now);
+    return value===null?'未记录':(step.timingPartial?'≥':'')+formatElapsed(value);
+  }
+  function useRunClock(active){
+    const [now,setNow]=React.useState(()=>Date.now());
+    React.useEffect(()=>{if(!active)return;setNow(Date.now());const clock=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(clock);},[active]);
+    return now;
+  }
+  function PlanProgress({state,hasRun,paused=false,now}){
+    const clockNow=useRunClock(hasRun&&state?.status!=='complete');
+    now??=clockNow;
     if(!hasRun)return h('div',{className:'ai-plan-empty'},h('b',null,'计划由 AI 制定'),h('p',null,'开始研究后，AI 会根据网页、材料和目标安排具体步骤。'));
     if(!state)return h('div',{className:'ai-plan-empty',role:'status'},'正在读取任务进度…');
-    if(!state.plan?.steps?.length)return h('div',{className:'ai-plan-empty',role:'status'},h('b',null,state.schemaVersion===2?'AI 正在制定计划':'这次旧任务没有保存 AI 计划'),h('p',null,state.schemaVersion===2?'计划生成后会显示在这里，执行中会按实际情况更新。':'可以查看真实执行过程；不会补画一套预设步骤。'));
+    const end=state.status==='complete'?state.completedAt||state.result?.verifiedAt||state.updatedAt||null:undefined;
+    const total=elapsedMilliseconds(state.createdAt,end,now),planning=state.plan?elapsedMilliseconds(state.createdAt,state.plan.createdAt||null,now):state.schemaVersion===2?elapsedMilliseconds(state.createdAt,end,now):null;
+    const timing=total===null?null:h('div',{className:'run-timing'},h('div',null,h('small',null,'总耗时'),h('strong',null,formatElapsed(total))),planning===null?null:h('div',null,h('small',null,'准备与计划'),h('strong',null,formatElapsed(planning))),h('p',null,'从任务创建起计时，含上传、等待与暂停。'));
+    if(!state.plan?.steps?.length)return h('div',{className:'progress-overview'},timing,h('div',{className:'ai-plan-empty',role:'status'},h('b',null,state.schemaVersion===2?'AI 正在制定计划':'这次旧任务没有保存 AI 计划'),h('p',null,state.schemaVersion===2?'计划生成后会显示在这里，执行中会按实际情况更新。':'可以查看真实执行过程；不会补画一套预设步骤。')));
     const plan=state.plan,labels={pending:'待执行',in_progress:paused?'已暂停':'进行中',completed:'已完成',blocked:'等你操作',failed:'遇到问题',skipped:'已跳过'};
-    return h('div',{className:'ai-plan'},h('div',{className:'ai-plan-caption'},h('b',null,'AI 制定的计划'),h('small',null,'第 '+plan.revision+' 版 · '+plan.steps.filter(s=>s.status==='completed').length+'/'+plan.steps.length+' 步已完成')),h('p',{className:'ai-plan-summary',title:plan.summary},plan.summary),plan.changeReason?h('p',{className:'ai-plan-change'},'调整原因：'+plan.changeReason):null,h('div',{className:'research-steps'},...plan.steps.map((step,i)=>h('div',{key:step.id,className:'research-step '+step.status,'aria-current':step.status==='in_progress'?'step':undefined},h('span',{className:'stage-dot'},step.status==='completed'?'✓':step.status==='skipped'?'–':i+1),h('div',{className:'step-content'},h('details',{className:'step-notes'},h('summary',null,step.title),h('p',null,step.message||step.detail||'暂无补充说明。')),['in_progress','blocked','failed'].includes(step.status)&&step.message?h('p',{className:'step-preview'},step.message):null),h('small',null,labels[step.status]||'待更新')))));
+    const steps=plan.steps.map((step,i)=>h('div',{key:step.id,className:'research-step '+step.status,'aria-current':step.status==='in_progress'?'step':undefined},
+      h('span',{className:'stage-dot'},step.status==='completed'?'✓':step.status==='skipped'?'–':i+1),
+      h('div',{className:'step-content'},
+        h('details',{className:'step-notes'},h('summary',null,step.title),h('p',null,step.message||step.detail||'暂无补充说明。')),
+        ['in_progress','blocked','failed'].includes(step.status)&&step.message?h('p',{className:'step-preview'},step.message):null),
+      h('div',{className:'step-meta'},
+        h('small',null,labels[step.status]||'待更新'),
+        h('span',{className:'step-time',title:step.timingPartial?'旧步骤缺少起点，从本次更新开始计时。':step.startedAt?'从首次开始到结束的实际经过时间，含等待与暂停。':'此步骤尚未开始，或旧记录没有计时信息。'},stepElapsed(step,now)))));
+    return h('div',{className:'ai-plan'},timing,
+      h('div',{className:'ai-plan-caption'},h('b',null,'AI 制定的计划'),h('small',null,'第 '+plan.revision+' 版 · '+plan.steps.filter(s=>s.status==='completed').length+'/'+plan.steps.length+' 步已完成')),
+      h('p',{className:'ai-plan-summary',title:plan.summary},plan.summary),
+      plan.changeReason?h('p',{className:'ai-plan-change'},'调整原因：'+plan.changeReason):null,
+      h('div',{className:'research-steps'},...steps));
   }
 
   function Page({ctx,t,SessionProvider,renderSlot,useSessionStatus}){
@@ -42,7 +79,7 @@ window.__ModuleLoader__.load({id:'@iosyyy/dsh-web-research',factory(require){
     async function newRun(kind){const w=workspace();const id='run-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);const sessionId=await ctx.sessions.create({workspaceId:w.workspaceId,agentPreset:'standard'});if(typeof sessionId!=='string'||!sessionId)throw new Error('Harness 未返回会话编号。');const r={id,sessionId,directory:w.path,url,name:name||'研究模板调整',kind,browserEngine,skillSource,createdAt:new Date().toISOString()};persist({...read(),runs:[r,...read().runs].slice(0,20)});setRun(r);setText('');return r;}
     async function send(r,content){const v=await ctx.sessions.using(r.sessionId,{source:'workspaceOperation'},ref=>ref.binding.session.prompt(content,'queue',undefined,'web-research-'+r.id));if(!v.ok)throw v.error;}
     async function openInternal(r,target){ctx.uiWorkspace.openSession(r.sessionId);for(let n=0;n<20;n++){await new Promise(resolve=>setTimeout(resolve,150));try{ctx.sidebarRight.openTab('browser',{params:{url:target}});return;}catch(e){if(!String(e?.message).includes('no session surface is mounted'))throw e;}}throw new Error('执行对话尚未就绪，可在执行对话中打开右侧浏览器；任务会使用可见 Chrome 继续。');}
-    async function start(){if(busy)return;setError('');setNotice('');setBusy(true);setNotice('正在创建执行会话…');try{const v=settings(),r=await newRun('research'),selectedFiles=[...Object.values(files).filter(Boolean),...materials],content=[];const initialState=await hostOp(r,{action:'begin',runId:r.id});setHostState(initialState);if(initialState.schemaVersion!==2)throw new Error('插件后台仍是旧版本，尚不支持 AI 计划。请重开 Harness，让更新后的页面和后台一起生效，再开始研究。当前尚未发送研究任务。');for(const file of selectedFiles){setNotice('正在上传模板：'+file.name);const uploaded=await ctx.fileUpload.upload(r.sessionId,file,file.name);if(!uploaded.ok)throw uploaded.error;content.push({type:'file',receiptId:uploaded.value.receiptId});}content.unshift({type:'text',text:buildPrompt(v,r.id,selectedFiles.map(f=>({name:f.name,kind:materials.includes(f)?'material':'template'})))});await send(r,content);setExecutionOpen(false);setNotice('研究已在后台启动。进度会在本页更新，需要时可查看执行过程。');}catch(e){setNotice('');setError(e?.message||String(e??'未知错误'));}finally{setBusy(false);}}
+    async function start(){if(busy)return;setError('');setNotice('');setBusy(true);setNotice('正在创建执行会话…');try{const v=settings(),r=await newRun('research'),selectedFiles=[...Object.values(files).filter(Boolean),...materials],content=[];const initialState=await hostOp(r,{action:'begin',runId:r.id});setHostState(initialState);if(initialState.schemaVersion!==2)throw new Error('插件后台仍是旧版本，尚不支持 AI 计划。请重开 Harness，让更新后的页面和后台一起生效，再开始研究。当前尚未发送研究任务。');if(initialState.timingVersion!==1)throw new Error('插件后台尚未加载步骤计时。请重开 Harness 后再开始研究，让页面和后台一起更新。当前尚未发送研究任务。');for(const file of selectedFiles){setNotice('正在上传模板：'+file.name);const uploaded=await ctx.fileUpload.upload(r.sessionId,file,file.name);if(!uploaded.ok)throw uploaded.error;content.push({type:'file',receiptId:uploaded.value.receiptId});}content.unshift({type:'text',text:buildPrompt(v,r.id,selectedFiles.map(f=>({name:f.name,kind:materials.includes(f)?'material':'template'})))});await send(r,content);setExecutionOpen(false);setNotice('研究已在后台启动。进度会在本页更新，需要时可查看执行过程。');}catch(e){setNotice('');setError(e?.message||String(e??'未知错误'));}finally{setBusy(false);}}
     async function preview(){setError('');try{const target=new URL(url);if(!['http:','https:'].includes(target.protocol)||target.username||target.password)throw new Error('请先填写正确的网址。');const r=run?.kind==='preview'?run:await newRun('preview');await openInternal(r,target.href);}catch(e){setError(e?.message||String(e??'未知错误'));}}
     async function continueRun(){if(!session||busy)return;setBusy(true);setError('');try{const r=await session.prompt([{type:'text',text:'请复核当前任务的真实状态后继续研究。先用 web_research_manage action=status 读取任务；如还没有 AI 计划，先按本次目标 action=set_plan 保存计划，再按 stepId 和 stepStatus 更新。继续旧任务时核对已有证据，只把确实做完的步骤标为完成；需要调整时说明原因并保留已完成步骤。不要把这条消息当成登录成功的证据，仍需检查页面。保持原任务指定的浏览器与技能来源，全程禁止无头模式。生成并检查实际报告。'}],'queue');if(!r.ok)throw r.error;}catch(e){setError(e?.message||String(e??'未知错误'));}finally{setBusy(false);}}
     async function stop(){if(!session)return;try{const r=await session.cancel();if(!r.ok)throw r.error;setNotice('已请求停止本轮。独立后台任务可在执行对话中停止。');}catch(e){setError(e?.message||String(e??'未知错误'));}}

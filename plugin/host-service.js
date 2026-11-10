@@ -49,8 +49,9 @@ export async function verifyManifest(cwd,runId){
   return {ok:true,outputDirectory:output,files,summary:String(manifest.summary||'报告文件已在本机检查。').slice(0,4000),verifiedAt:new Date().toISOString()};
 }
 
-export function createResearchService(){
+export function createResearchService({now=()=>Date.now()}={}){
   const locks=new Map();
+  const timestamp=()=>new Date(now()).toISOString();
   async function operate(cwd,args){
     if(!cwd||typeof cwd!=='string')throw new Error('当前会话没有工作区。');
     const workspace=await realpath(cwd);
@@ -60,7 +61,7 @@ export function createResearchService(){
     if(args.action==='get_templates')return {templates:(await readJson(configPath,{},workspace)).templates||null};
     if(args.action==='set_templates'){
       const templates=validateTemplates(args.templates);const old=await readJson(configPath,{},workspace);
-      await writeJson(configPath,{...old,templates,updatedAt:new Date().toISOString()});return {templates};
+      await writeJson(configPath,{...old,templates,updatedAt:timestamp()});return {templates};
     }
     if(!RUN.test(args.runId||''))throw new Error('任务编号无效。');
     const runs=join(workspace,'web-research-runs');await mkdir(runs,{recursive:true});await contained(workspace,runs);
@@ -70,13 +71,14 @@ export function createResearchService(){
     if(args.action==='status')return current;
     if(args.action==='begin'){
       if(current.createdAt)return current;
-      const next={schemaVersion:2,runId:args.runId,phase:'planning',plan:null,status:'running',message:'正在根据网页、材料和研究目标制定计划。',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),dependencies:{gtm:'unknown',browser:'unknown',chrome:'unknown'}};
+      const startedAt=timestamp();
+      const next={schemaVersion:2,timingVersion:1,runId:args.runId,phase:'planning',plan:null,status:'running',message:'正在根据网页、材料和研究目标制定计划。',createdAt:startedAt,updatedAt:startedAt,dependencies:{gtm:'unknown',browser:'unknown',chrome:'unknown'}};
       await writeJson(path,next);return next;
     }
     if(args.action==='set_plan'){
       if(current.result)throw new Error('这次研究已完成，请新建任务。');
-      const plan=reviseTaskPlan(current.plan,args.plan,args.message);
-      const next={...current,schemaVersion:2,phase:'executing',plan,status:planRunStatus(plan),message:args.message?String(args.message).slice(0,2000):'AI 已制定本次计划，将按实际执行更新。',updatedAt:new Date().toISOString()};
+      const plan=reviseTaskPlan(current.plan,args.plan,args.message,timestamp());
+      const next={...current,schemaVersion:2,timingVersion:1,phase:'executing',plan,status:planRunStatus(plan),message:args.message?String(args.message).slice(0,2000):'AI 已制定本次计划，将按实际执行更新。',updatedAt:timestamp()};
       await writeJson(path,next);return next;
     }
     if(args.action==='progress'){
@@ -84,13 +86,13 @@ export function createResearchService(){
       if(args.status!==undefined&&!STATES.includes(args.status))throw new Error('任务状态无效；完成必须通过 finalize 检查。');
       if(current.schemaVersion===2&&args.phase!==undefined)throw new Error('请按 AI 计划的 stepId 和 stepStatus 更新，不使用固定阶段。');
       const hasStep=args.stepId!==undefined||args.stepStatus!==undefined;
-      const plan=hasStep?updateTaskStep(current.plan,args):current.plan;
+      const plan=hasStep?updateTaskStep(current.plan,args,timestamp()):current.plan;
       if(!current.schemaVersion&&!plan&&!PHASES.includes(args.phase))throw new Error('阶段或状态无效。');
       const dependencies={...current.dependencies};
       for(const [key,value] of Object.entries(args.dependencies||{})){
         if(!['gtm','browser','chrome'].includes(key)||!['unknown','ready','failed'].includes(value))throw new Error('依赖状态无效。');dependencies[key]=value;
       }
-      const next={...current,...plan?{plan}:{},phase:plan?'executing':args.phase||current.phase,status:args.status||(plan?planRunStatus(plan):current.status),message:String(args.message||'').slice(0,2000),dependencies,updatedAt:new Date().toISOString()};
+      const next={...current,...plan?{plan,timingVersion:1}:{},phase:plan?'executing':args.phase||current.phase,status:args.status||(plan?planRunStatus(plan):current.status),message:String(args.message||'').slice(0,2000),dependencies,updatedAt:timestamp()};
       await writeJson(path,next);return next;
     }
     if(args.action==='finalize'){
@@ -99,8 +101,9 @@ export function createResearchService(){
       const finalStep=unfinished.length===1&&unfinished[0]===current.plan.steps.at(-1)&&unfinished[0].status==='in_progress'?unfinished[0]:null;
       if(unfinished.length&&!finalStep)throw new Error('计划中还有未结束的步骤，请核对真实执行情况。');
       const result=await verifyManifest(workspace,args.runId);
-      const plan=finalStep?updateTaskStep(current.plan,{stepId:finalStep.id,stepStatus:'completed',message:'实际报告文件已通过最终检查。'}):current.plan;
-      const next={...current,...plan?{plan}:{},phase:'export',status:'complete',message:result.summary,result,updatedAt:new Date().toISOString()};
+      const finishedAt=timestamp();
+      const plan=finalStep?updateTaskStep(current.plan,{stepId:finalStep.id,stepStatus:'completed',message:'实际报告文件已通过最终检查。'},finishedAt):current.plan;
+      const next={...current,...plan?{plan,timingVersion:1}:{},phase:'export',status:'complete',message:result.summary,result,completedAt:current.completedAt||current.result?.verifiedAt||finishedAt,updatedAt:finishedAt};
       await writeJson(path,next);return next;
     }
     throw new Error('不支持的网页研究操作。');

@@ -132,3 +132,21 @@ unzip -t docs/downloads/dsh-web-research-plugin.zip
 随后在隔离 profile 中分别验证：先安装本地 plugin 目录再切换 Git tag；增加与 Desktop 一致的 createRuntimeResolution / PluginPackages 后再运行同一切换。两次均 application=applied，没有复现用户旧进程中的 ENOENT。因此没有凭路径截图修改包名或任意复制一层 plugin 目录；当前证据支持先完全退出旧进程再打开。用户随后自行用 ⌘Q 完全退出并重新打开，明确确认能看到「网页研究台」，此次旧路径加载问题恢复。
 
 以上是 Host 导入与注册验证，不是完整研究任务或所有 Client 组件的浏览器验收。本次未执行用户 profile 的安装、卸载、启停、重启或配置修改。
+
+
+## 1.6.0 步骤计时与提示词裁剪（2026-11-10）
+
+新任务 begin 返回 timingVersion=1，Host 记录实际开始 / 结束时间；UI 在 PlanProgress 内每秒刷新总耗时、准备与计划用时和每步用时。完成时固定，刷新后读取持久化字段；更新消息和修订计划不重置计时。口径是实际经过时间，包含等待、模型思考、工具执行与暂停。旧步骤不从 updatedAt 回推；缺少记录显示未记录，部分起点用 ≥ 标明下限。
+
+测试先观察缺少字段、UI 无用时和旧 Host 仍发送无计时任务等失败，再实现通过。覆盖消息重复、等待恢复、计划修订、Host 重建、最终文件检查失败 / 成功、重复 finalize、旧记录部分计时、钟差、小时格式、每秒刷新与 interval 清理。
+
+使用可见 Chrome for Testing 和临时浏览器资料目录检查三种状态的实际组件预览：制定计划、进行中与已完成；完成值保持固定，进行中计时递增，无水平溢出。页面明确标注为固定测试数据，未作为真实研究结果或模型执行截图发布。没有改动用户 Harness 安装、配置或既有任务。
+
+提示词保留 v1.5.1 生成器作为固定测试夹具，按 6 种浏览器 × 2 套技能来源 × 2 种范围 × 2 种附件共 48 组核对任务字段、数量、AI 自定计划、技能来源、授权、登录、附件边界、证据留存、报告回读与 finalize 条款。仅裁剪未选引擎和非个人来源的导入说明；auto 在内置操作验证失败后才准备外部浏览器，明确避免为了计时重复发进度。
+
+示例默认浏览器提示词字符数由 3764 降至 2991（减少 20.5%），六种引擎场景减少 11.2%–22.1%。这是输入字符统计，不是 token 统计或任务耗时测量。未进行真实模型输出质量与速度 A/B；没有降低采集、证据与交付标准，也不声称已证明研究提速。
+
+
+1.6.0 最终检查：46/46 自动检查通过，包含上述 48 组提示词配置矩阵。在全新临时 profile 中使用官方 PluginManager + HMR + RuntimeResolution 实际安装并启用 npm pack 产物，返回 application=applied、version=1.6.0、exitCode=0；注册的 web-research 命令和 web_research_manage 工具实际完成 begin → set_plan → progress → finalize，持久化 timingVersion=1、startedAt、finishedAt 与 completedAt。使用的 PDF/XLSX 是隔离文件签名夹具，不是模型生成研究报告。
+
+为避免把附件上传和队列等待归为纯 AI 响应，顶部第二项标为“准备与计划”；从 Host begin 到首次 plan.createdAt。总计时也从 Host 创建任务起计，不伪称覆盖会话建立之前的按钮延迟。
